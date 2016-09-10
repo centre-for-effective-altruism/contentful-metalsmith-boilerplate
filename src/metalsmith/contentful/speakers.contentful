@@ -1,0 +1,8 @@
+---
+title: Speakers
+contentful:
+  content_type: speaker
+  entry_template: speaker.pug
+  entry_filename_pattern: speakers/:fields.slug
+  permalink_style: true
+---

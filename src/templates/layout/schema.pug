@@ -1,0 +1,110 @@
+//- Facebook / Open Graph
+- var defaultParams = '?fit=pad&bg=white'
+- var eagLogo = 'https://images.contentful.com/70c29flvim3q/6j1bEsx6GkAYGEsMWgOakg/8141939c6c2b4a8dc88123d8841c315c/EA_Global_Vertical.png'+defaultParams
+- var eagXLogo = 'https://images.contentful.com/70c29flvim3q/1DZUwSv6UQ4goGYQGkIQ2Y/45b6f22204db8c03a8e52ffc9f96bc8e/EA_Global_X_Vertical.png'+defaultParams
+
+mixin ogImageTags(contentfulImageURL)
+	- var sizes = [[1200,650],[300,300],[180,110],[120,120]]
+	each size in sizes
+		- var imageUrl = url.parse(contentfulImageURL, true)
+		- delete imageUrl.search
+		- imageUrl.query.w = size[0]
+		- imageUrl.query.h = size[1]
+		if !imageUrl.query.fit
+			- imageUrl.query.fit = 'thumb'
+		meta(property="og:image" content=url.format(imageUrl))
+		meta(property="og:image:width" content=size[0])
+		meta(property="og:image:height" content=size[1])
+
+//- OG Type info
+case collectionSlug
+	when 'talk'
+		meta(property="og:video" content=oembed.html.match(/src=\"(.+?)\"/i)[1])
+		meta(property="og:type" content='video.other')
+	default 
+		meta(property="og:type" content='website')
+
+//- OG Title / URL / Description
+- var ogTitle = title + ' - ' + site.title;
+if slug === 'home'
+	- ogTitle = site.title + ' - ' + site.shortDescription
+meta(property="og:title" content=ogTitle)
+meta(property="og:url" content=canonicalURL)
+meta(property="og:description" content=strip(description))
+meta(property="og:locale" content="en_US")
+meta(property="og:site_name" content=site.title)
+
+//- OG Image tags info
+- defaultLogo = eagLogo
+if breadcrumb_path && breadcrumb_path.length && breadcrumb_path[0].file && breadcrumb_path[0].file.slug === 'eagx'
+	- defaultLogo = eagXLogo
+
+- var ogImageURL = false
+case collectionSlug
+	when 'speaker'
+		- ogImageURL = photo ? contentfulImage(photo): false
+	when 'talk'
+		- ogImageURL = thumbnail ? contentfulImage(thumbnail) : false
+	when 'event'
+		- ogImageURL = featuredImage ? contentfulImage(featuredImage) : false
+	default
+		- ogImageURL = defaultLogo
+
+if !ogImageURL
+	- ogImageURL = defaultLogo
++ogImageTags(ogImageURL)
+
+//- Twitter Cards
+meta(name="twitter:card" content="summary")
+meta(name="twitter:site" content="@Effect_Altruism")
+meta(name="twitter:creator" content="@Effect_Altruism")
+- var twimgOpts = {w:300,h:300,fit:'thumb'}
+case collectionSlug
+	when 'speaker'
+		if photo
+			- var twitterImage = contentfulImage(photo,twimgOpts)
+	when 'talk'
+		if thumbnail
+			- var twitterImage = contentfulImage(thumbnail,twimgOpts)
+	default
+		- var twimgUrl = url.parse(defaultLogo, true)
+		- delete twimgUrl.search
+		- twimgUrl.query.w = twimgOpts.w 
+		- twimgUrl.query.h = twimgOpts.h 
+		- var twitterImage = url.format(twimgUrl)
+meta(name="twitter:image" content=twitterImage)
+//- JSON Schema
+case collectionSlug
+	when 'talk'
+		script(type="application/ld+json").
+			{
+				"@context": "http://schema.org",
+				"@type": "VideoObject",
+				"url": "#{canonicalURL}",
+				"name": "#{title}",
+				"description": "#{strip(description)}",
+				"thumbnailUrl": "#{contentfulImage(thumbnail,{w:1920,h:1080})}",
+				"embedUrl": "#{oembed.html.match(/src=\"(.+?)\"/i)[1]}",
+				"publisher": {
+					"@type": "Organization",
+					"name": "Centre for Effective Altruism",
+					"logo": "https://images.contentful.com/es8pp29e1wp8/1S3GbfZNWsEu0oewkgQIcK/83512426465d180b4f15b77e3ea2795b/CEA_Logo_Blue.png?w=800"
+				},
+				"datePublished": "#{moment(date).toISOString()}",
+				"uploadDate": "#{moment(date).toISOString()}"
+			}
+	when 'speaker'
+		script(type="application/ld+json").
+			{
+				"@context": "http://schema.org",
+				"@type": "Person",
+				"url": "#{canonicalURL}",
+				"name": "#{title}"
+			}
+	default
+		script(type="application/ld+json").
+			{
+				"@context": "http://schema.org",
+				"@type": "WebPage",
+				"name": "#{title} - #{site.title}"
+			}

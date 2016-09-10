@@ -1,0 +1,26 @@
+mixin headerLogo(type)
+	if breadcrumb_path.length && breadcrumb_path[0].file && breadcrumb_path[0].file.slug === 'eagx'
+		- type = 'eagx';
+	- type = type || 'eag'
+		#header-logo.row
+			.col-md-6.col-md-offset-3
+				if type !== 'eagx'
+					img(src="/images/logos/ea-global-vertical.svg", alt="Effective Altruism Global Logo")
+				else
+					img(src="/images/logos/ea-global-x-vertical.svg", alt="EA Global X Logo")
+
+mixin headerText(title)
+	h1.page-title#page-title!= typogr.typogrify(title)
+
+mixin header(options)
+	- var opts = options || {};
+	- var showLogo = opts.logo === false ? false : true
+	- var showBreadcrumbs = opts.breadcrumbs === false ? false : true
+	- var showPagetitle = opts.title === false ? false : true
+	header#header
+		if showLogo
+			+headerLogo()
+		if showBreadcrumbs
+			include ../components/breadcrumbs
+		if showPagetitle
+			+headerText(title)

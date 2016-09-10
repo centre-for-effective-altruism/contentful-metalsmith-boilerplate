@@ -1,0 +1,8 @@
+- var embedSrc = src || href || link || false
+- var aspectRatio = aspect || '16by9'
+- var embedTitle = title || ''
+- var showModalOnLoad = launch
+
+if embedSrc
+	include ../components/responsive-embed
+	+embed(embedSrc,aspectRatio,embedTitle,showModalOnLoad)

@@ -1,0 +1,9 @@
+---
+title: Tags
+contentful:
+  content_type: tag
+  entry_template: tag.pug
+  entry_filename_pattern: tags/:fields.slug
+  permalink_style: true
+  order: fields.title
+---

@@ -1,0 +1,13 @@
+if file
+	article.series-item.series-article(id='series-article-'+file.slug)
+		h3.series-item-title.series-article-title(class=useNumbering?'series-item-title-numbered':'')
+			a(href=file.canonical)
+				if useNumbering
+					| #{index+1}. 
+				!= file.title
+		if useExcerpts
+			.series-article-excerpt!= file.excerpt
+		//- if useReadMore
+			.series-article-read-more
+				|  
+				a(href=file.canonical) Read More

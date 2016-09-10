@@ -1,0 +1,29 @@
+mixin tocItem(heading, currentLevel, deepestLevel, index, headings)
+	if currentLevel <= deepestLevel
+		li.table-of-contents-item
+			a(href='#'+heading.id)!= heading.text
+			if typeof headings[index+1] === 'object'
+				- nextLevel = parseInt(headings[index+1].tag.substr(1))
+				if nextLevel > currentLevel
+					- childrenRemain = true
+					ul.table-of-contents.nav
+						each childHeading, childIndex in headings.slice(index+1)
+							- childLevel = parseInt(childHeading.tag.substr(1))
+							if childLevel > currentLevel && childrenRemain && currentLevel <= deepestLevel
+								+tocItem(childHeading, childLevel, deepestLevel, childIndex, headings)
+							else
+								- childrenRemain = false
+
+
+aside.table-of-contents-wrapper
+	if headings
+		- var tocDepth = tocDepth || 3;
+		- var tocStartDepth = tocStartDepth || 2;
+		- var deepestLevel = tocStartDepth + (tocDepth - 1)
+		ul.table-of-contents.table-of-contents-top-level.nav
+			each heading,index in headings
+				- level = parseInt(heading.tag.substr(1));
+				if level === tocStartDepth
+					+tocItem(heading, level, deepestLevel, index, headings)
+
+

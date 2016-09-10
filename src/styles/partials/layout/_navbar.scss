@@ -1,0 +1,59 @@
+
+#navbar-main{
+	background-color: #FFF;
+	border-bottom: 1px solid #DDD;
+	transition: background 0.7s ease-in-out, border 0.7s ease-in-out;
+	li.nav {
+		&.active>a {
+		    border-bottom: 4px solid $site-primary;
+		    padding-bottom: 15.5px;
+		}
+	}
+	&.nav-minimal {
+		background-color: rgba(255,255,255,0);
+		border-color: transparent;
+		.navbar-header-brand {
+			opacity: 0;
+		}
+	}
+}
+.navbar {
+	transition: opacity .25s ease-in-out;
+	transition: background-color .25s ease-in-out;
+	background-color: transparent;
+}
+
+.navbar-header-brand {
+	transition: opacity 0.7s ease-in-out;
+	margin-top: 7px;
+	padding-left: $grid-gutter-width/2;
+
+}
+.navbar-header-brand-logo-wrapper {
+	@media(max-width: $screen-xs-max){
+	    width: 240px;
+	    margin-top: 6px;
+	}
+}
+
+
+.navbar-toggle {
+	margin-top: 19px;
+	color: $site-primary;
+}
+.navbar-main-menu{
+	&>.navbar-nav {
+		@media(min-width: $screen-md){
+			float: right;
+		}
+	}
+}
+.navbar-toggle {
+	padding: 0;
+}
+.navbar-header-brand-logo-wrapper,.navbar-header-brand-logo-text-wrapper {
+	float: left;
+}
+.navbar-header-brand-logo {
+	width: 100%;
+}

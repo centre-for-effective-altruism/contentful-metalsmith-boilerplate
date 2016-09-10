@@ -1,0 +1,35 @@
+
+.footer {
+	position: relative;
+	z-index: 1001;
+	background-color: $footer-background-color;
+	padding: $grid-gutter-width 0;
+	@media(max-width:$screen-sm-max){
+		width:100%;
+	}
+	font-size: 14px;
+	a {
+		color: $text-color;
+		text-decoration: underline;
+	}
+}
+.footer-legal {
+	@media(min-width:$screen-md){
+		margin-top: 25px;
+	}
+}
+
+.footer {
+	.newsletter-signup-form {
+		input, .btn{
+			border-color: #555;
+			color: #555;
+		}
+		input {
+			background-color: $site-muted;
+		}
+		.btn {
+			background-color: darken($site-muted,5%);
+		}
+	}
+}

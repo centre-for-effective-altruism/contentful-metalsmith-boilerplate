@@ -1,0 +1,10 @@
+mixin formatMultipleSpeakers(speakers)
+	ul.speakers-list
+		each s, index in speakers
+			- var speaker = fileIDMap[s.sys.id]
+			li.speakers-list-speaker
+				a.speaker-name(href=speaker.canonical)!= speaker.title
+			if speakers.length > 2 && index < speakers.length-2
+				li.speakers-list-divider-comma , 
+			if speakers.length > 1 && index === speakers.length-2
+				li.speakers-list-divider-amp  &amp;

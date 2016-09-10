@@ -1,0 +1,21 @@
+#header {
+	text-align: center;
+	background: radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 80%);
+}
+.header-logo {
+	margin-bottom: $grid-gutter-width;
+}
+.page-title {
+	color: $site-dark-gray;
+}
+.breadcrumb {
+	text-align: left;
+	@media(max-width:$screen-xs-max){
+		display: none;
+	}
+	&>li{
+		&+li:before{
+			content: ">";
+		}
+	}
+}

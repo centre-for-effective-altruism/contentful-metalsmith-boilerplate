@@ -1,0 +1,68 @@
+$author-image-size: 100px;
+$quotation-mark-spacing: 60px;
+$text-spacing: $author-image-size + $quotation-mark-spacing + ( $grid-gutter-width );
+
+.quotation {
+	@include clearfix();
+}
+.quotation-author-image {
+    width: $author-image-size !important;
+    height: $author-image-size !important;
+    margin-top: 8px;
+    margin-left: 15px;
+    margin-bottom: 15px;
+    float: right;
+    @media(min-width: $screen-md){
+        float: left;
+        margin-right: 15px;
+    }
+}
+.quotation-text {
+    padding: 0;
+    border: none;
+    margin: 0;
+    font-style: italic;
+    position: relative;
+    font-size: 18px;
+    em {
+        font-style: normal;
+    }
+    &>.first-paragraph {
+        margin-top: 0;
+    }
+    @media(min-width: $screen-md){
+        padding-left: $text-spacing;
+    	&:before {
+    	    content: "\201C ";
+    	    font-family: Georgia;
+    	    float: left;
+    	    height: 0;
+    	    width: 0;
+    	    position: relative;
+    	    left: -67px;
+    	    top: 54px;
+    	    font-size: 120px;
+    	    line-height: 0;
+    	    color: $site-muted;
+    	}
+    }
+}
+
+.quotation-source {
+    text-align: right;
+    @media(min-width: $screen-md){
+        text-align: left;
+        margin-left: $text-spacing;
+    }
+}
+.quotation-source-title {
+    margin: 0;
+    font-weight: $font-weight-bold;
+    &:before {
+    	content: '— ';
+    }
+}
+
+.quotation-source-details {
+
+}

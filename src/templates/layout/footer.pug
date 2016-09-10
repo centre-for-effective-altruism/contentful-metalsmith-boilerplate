@@ -1,0 +1,16 @@
+footer.footer#footer
+	.container
+		.row
+			.col-md-6.footer-left
+				.row
+					.col-xs-12
+						.footer-legal
+							p #[a(href="/")!= site.title] is a project of #[a(href="https://www.centreforeffectivealtruism.org" target="_blank") The Centre for Effective Altruism]
+
+							p The Centre for Effective Altruism is a registered charity in England and Wales (Charity Number 1149828) and a registered 501(c)(3) Exempt Organization in the USA (EIN 47-1988398)
+
+							p All content © Centre For Effective Altruism or its respective authors, unless otherwise noted. For enquiries and feedback #[a(href='/contact/') contact us].
+			.col-md-6.footer-right
+				.row
+					.col-md-8.col-md-offset-2
+						include ../components/newsletter-signup

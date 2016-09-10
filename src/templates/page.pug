@@ -1,0 +1,14 @@
+extends ./layout
+
+block header
+	.row
+		.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+			include ./layout/header
+			+header({breadcrumbs:false})
+block content
+	#content
+		.row
+			main.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				include ./components/breadcrumbs
+				!= contents
+				block postContent

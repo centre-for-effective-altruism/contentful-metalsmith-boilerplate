@@ -1,0 +1,64 @@
+.newsletter-signup {
+	@include clearfix();
+}
+
+.newsletter-signup-call-to-action {
+	margin:0;
+}
+
+.newsletter-signup-result {
+	padding: 12px;
+}
+
+
+#navbar-main {
+	.newsletter-signup {
+		// background-color: #EEE;
+	}
+	.newsletter-signup-call-to-action {
+		color: #AAA;
+	}
+	.newsletter-signup-form {
+		// font-family: $font-family-sans-serif;
+		margin: 7px 0;
+		.form-control {
+			border: 1px solid $site-dark;
+		}
+		@media(min-width: $screen-md){
+			.form-control {
+				height: 36px;
+			    padding: 5px 10px;
+			    font-size: 16px;
+			    line-height: 1.5;
+			}
+			.btn {
+				padding: 5px 10px;
+				font-size: 16px;
+			    line-height: 1.5;
+			}
+		}
+	}
+	.newsletter-signup-call-to-action-wrapper,
+	.newsletter-signup-form-wrapper {
+		@include make-sm-column(8);
+    	@include make-sm-column-offset(2);
+    	@include make-md-column-offset(0);
+	}
+	.newsletter-signup-call-to-action-wrapper{
+    	@include make-md-column(3);
+    }
+	.newsletter-signup-form-wrapper {
+    	@include make-md-column(9);
+    	margin-bottom: 5px;
+    }
+
+}
+
+
+#footer {
+	.newsletter-signup, .newsletter-signup-form .btn {
+	}
+	.newsletter-signup-call-to-action {
+		font-weight: $font-weight-bold;
+	}
+}

@@ -1,0 +1,60 @@
+.media-item-title {
+	font-size: 18px;
+	margin: 0;
+	&>.heading-permalink {
+		display: none;
+	}
+	&>i {
+		color: #999;
+	}
+}
+.media-item-info-publication {
+	font-weight: $font-weight-bold;
+}
+
+.media-highlights {
+	@include clearfix();
+	list-style-type: none;
+}
+.media-highlights-item {
+	display: inline-block;
+	float: left;
+	margin: auto;
+	width: 50%;
+	@media(min-width: $screen-sm){
+		width: 33%;
+	}
+	@media(min-width: $screen-md){
+		width: 20%;
+	}
+}
+.media-highlights-item-link {
+	width: 100%;
+	margin: auto;
+	display: block;
+	@include responsive-square(56%);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+
+.media-highlight-the-new-york-times {
+	background-image: url('/images/media-logos/new-york-times.svg')
+}
+.media-highlight-vice {
+	width: 50%;
+	background-image: url('/images/media-logos/vice.svg')
+}
+.media-highlight-vox {
+	width: 40%;
+	background-image: url('/images/media-logos/vox.svg')
+}
+.media-highlight-the-atlantic {
+	width: 50%;
+	background-image: url('/images/media-logos/the-atlantic.svg')
+}
+.media-highlight-financial-times {
+	width: 60%;
+	background-image: url('/images/media-logos/financial-times.svg')
+}

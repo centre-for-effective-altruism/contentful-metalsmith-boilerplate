@@ -1,0 +1,16 @@
+if file
+	article.series-item.series-book(id='series-book-'+file.slug)
+		.row
+			.col-xs-4.col-sm-3.col-md-3.series-book-cover
+				if file.cover && file.cover.fields
+					a(href=file.url target="_blank")
+						img.img-responsive(src=contentfulImage(file.cover))
+			.col-xs-8.col-sm-9.col-md-9
+				h3.series-item-title.series-book-title
+					a(href=file.url target="_blank")
+						!= file.title
+					| &nbsp;#[i.fa.fa-external-link]
+				if file.subtitle && file.subtitle.length
+					h4.series-item-subtitle.series-book-subtitle!= typogr.typogrify(file.subtitle)
+				p.series-book-author!= file.author
+				p.series-book-link.series-item-external-link-info!= url.parse(file.url).hostname

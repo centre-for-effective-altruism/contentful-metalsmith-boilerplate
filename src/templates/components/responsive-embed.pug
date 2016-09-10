@@ -1,0 +1,55 @@
+mixin embed(src, aspect)
+	- var aspectRatio = aspect || '16by9'
+	- var parsedSrc = url.parse(src)
+	- src = ['www.youtube.com'].indexOf(parsedSrc.hostname) > -1 && parsedSrc.pathname ==='/watch' && parsedSrc.query ? 'https://www.youtube.com/embed/'+parsedSrc.query.match(/v=([^&]*)/)[1] : src;
+			.embed-responsive(class=('embed-responsive-'+aspectRatio))
+				iframe.embed-responsive-item(src=src)
+
+mixin oembed(oembed, opts)
+	- var options = opts || {}
+	- var autoplay = options.autoplay === false ? false : true
+	- var aspectClass = 'embed-responsive-'+'16by9'
+	- var html = oembed.html
+	- var href = url.parse(html.match(/src=\"(.+?)\"/i)[1], true)
+	- var provider = oembed.provider_name
+	//- Autoplay params
+	if autoplay
+		if provider === 'YouTube'
+			- href.query.autoplay = 1
+	//- Set URL parameters
+	if options.urlParams
+		each key,val in options.urlParams
+			- href.query[key] = val
+	//- get rid of `search` key, as it will override the `query` key
+	if href.search	
+		- delete href.search
+	if provider === 'YouTube'
+		//- don't get related videos on Youtube
+		- href.query.rel = 0
+		//- get rid of `?feature=oembed` from query string
+		if href.query.feature	
+			- delete href.query.feature
+
+	//- Set aspect ratio (height as percentage of width)
+	- var aspectPercentage = (oembed.height / oembed.width * 100).toFixed(2)
+
+
+	.embed-responsive(style='padding-bottom: '+aspectPercentage+'%;')
+		iframe.embed-responsive-item(src=url.format(href))
+
+
+//- mixin embedModal(embedSrc,opts)
+//- 	- var options = opts || {}
+//- 	- var linkText = options.text
+//- 	- var title = options.title
+//- 	- var classNames = options.classNames
+
+//- 	.embed-modal-launch-button-wrapper
+
+//- 	include ../helpers/modal
+//- 	+modal(title, id)
+//- 		+embed(embedSrc)
+//- 	script.
+//- 		loadScript(function(){
+			
+//- 		})

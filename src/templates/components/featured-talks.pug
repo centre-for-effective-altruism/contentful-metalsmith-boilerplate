@@ -1,0 +1,29 @@
+mixin featuredTalks(eventId, maxTalks)
+	//- Get all Talks associated with this event
+	- var options = opts || {}
+	- var max = maxTalks || 6
+	- var featured = []
+	- var event = fileIDMap[eventId]
+	each talk in talks
+		if talk.event.sys.id === eventId
+			- featured.push(talk)
+	if featured.length > 0
+		- var featuredTalks = featured.slice(0, max)
+		- var talkWidths = ['col-sm-6', 'col-sm-offset-3']
+		//- set talk widths
+		if featuredTalks.length === 2
+			- var talkWidths = ['col-sm-6']
+		if featuredTalks.length === 3
+			- var talkWidths = ['col-sm-4']
+		if featuredTalks.length === 4
+			- var talkWidths = ['col-md-3','col-sm-6']
+		if featuredTalks.length >= 5
+			- var talkWidths = ['col-md-2','col-sm-3']
+		//- create the element
+		include ./cards
+		.featured-talks
+			.row
+				each talk in featuredTalks
+					div(class=talkWidths)
+						.featured-talks-talk
+							+card(talk)

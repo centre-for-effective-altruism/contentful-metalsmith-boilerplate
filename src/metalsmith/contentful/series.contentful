@@ -1,0 +1,8 @@
+---
+title: Series
+contentful:
+  content_type: series
+  entry_template: series.pug
+  entry_filename_pattern: series/:fields.slug
+  permalink_style: true
+---

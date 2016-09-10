@@ -1,0 +1,9 @@
+if breadcrumb_path.length>1
+	ol.breadcrumb
+		each breadcrumb,index in breadcrumb_path
+			if breadcrumb.file
+				if path!==breadcrumb.path
+					li
+						a(href=breadcrumb.file.canonical)!= breadcrumb.file.title
+				else
+					li!= breadcrumb.file.title

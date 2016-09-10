@@ -1,0 +1,14 @@
+extends ./page
+
+block header
+    header#header
+        include ./layout/header.pug
+        +headerLogo()
+        h1.page-title.sr-only!= typogr.typogrify(title)
+
+block content
+    .home-content#content
+        section.home-section
+                .row
+                    .col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+                        != contents

@@ -1,0 +1,7 @@
+include ../components/featured-talks
+- var eventId
+- var count = number || false
+each event in events
+	if event.slug === slug
+		- eventId = event.id
++featuredTalks(eventId, count)

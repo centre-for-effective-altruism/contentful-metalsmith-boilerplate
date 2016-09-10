@@ -1,0 +1,92 @@
+@mixin text-content(){
+    @include make-lg-column(8);
+    @include make-lg-column-offset(2);
+    .container {
+    	margin:$grid-gutter-width $grid-gutter-width/2*-1;
+		@media(min-width:$screen-lg){
+			margin-left: -25%;
+			margin-right: 0;
+			padding:0;
+		}
+	}
+}
+
+@mixin cover-background(){
+	background: no-repeat center center; 
+	background-size: cover;
+}
+
+@mixin centered-heading(){
+	text-transform: uppercase;
+	background: $site-secondary;
+	text-align: center;
+	padding: $grid-gutter-width/2;
+}
+
+@mixin responsive-square($height: 100%){
+	position: relative;
+	height: 0;
+	padding-bottom: $height;
+	&>.content{
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+	}
+}
+
+@mixin padfix(){
+	
+}
+
+
+@mixin first-paragraph() {
+	// first paragraphs
+	$first-paragraph-xs-size: 22px;
+	$first-paragraph-xs-line-height: floor(($first-paragraph-xs-size*$line-height-base));
+	$first-paragraph-sm-size: 26px;
+	$first-paragraph-sm-line-height: floor(($first-paragraph-sm-size*$line-height-base));
+
+	// font-family: $font-family-sans-serif !important;
+	font-size: $first-paragraph-xs-size;
+	line-height: $first-paragraph-xs-line-height;
+	min-height: 72px;
+	@media(min-width:$screen-sm){
+		font-size: $first-paragraph-sm-size;
+		line-height: $first-paragraph-sm-line-height;
+		min-height: 90px;
+	}
+
+	&::first-letter {
+		font-size: $first-paragraph-xs-line-height*2;
+		line-height: ($first-paragraph-xs-line-height*2)-1;
+		font-family: $font-family-sans-serif; 
+		font-weight: $font-weight-bold;
+	    float: left;
+	    padding-right: 0.05em;
+	    color: $site-lolight;
+		@media(min-width:$screen-sm){
+			font-size: $first-paragraph-sm-line-height*2;
+			line-height: ($first-paragraph-sm-line-height*2)-1;
+		}
+	}
+}
+
+@mixin placeholderColor($color:#FFF) {
+	::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+		color: $color !important;
+	}
+	::-moz-placeholder { /* Firefox 19+ */
+		color: $color !important;
+	}
+	:-ms-input-placeholder { /* IE 10+ */
+		color: $color !important;
+	}
+	:-moz-placeholder { /* Firefox 18- */
+		color: $color !important;
+	}
+}

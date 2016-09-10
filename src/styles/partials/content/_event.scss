@@ -1,0 +1,39 @@
+.event-photos-photo-wrapper {
+	@include responsive-square(66.66%);
+}
+
+body.event {
+	#page-title {
+		border: none;
+		text-align: center;
+		font-size: 40px;
+	}
+}
+
+
+.event-details {
+    font-family: $font-family-sans-serif;
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: $grid-gutter-width*2;
+}
+
+.event-details-location {
+	color: #999;
+}
+
+.event-talks-talk {
+	.embed-link-title {
+		@media(min-width: $screen-sm) {
+			height: 39px;
+			overflow: hidden;
+		}
+	}
+}
+
+.event-speakers-speaker-occupation {
+	@media(min-width: $screen-sm) {
+		height: 58px;
+		overflow: hidden;
+	}
+}

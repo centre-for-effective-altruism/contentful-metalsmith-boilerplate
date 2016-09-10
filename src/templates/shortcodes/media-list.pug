@@ -1,0 +1,16 @@
+if mediaItems
+	ul.media-items-list
+		each item in mediaItems
+			li.media-items-list-item
+				h3.media-item-title
+					a(href=item.url target="_blank")!= item.title
+					|   
+					i.fa.fa-external-link
+				p.media-item-info
+					if item.author && item.author.toLowerCase()!=='n/a'
+						span.media-item-info-author #{item.author}
+						| , 
+					span.media-item-info-publication!= item.publication
+					| , 
+					span.media-item-info-publication-date!= moment(item.date).format('MMMM YYYY')
+

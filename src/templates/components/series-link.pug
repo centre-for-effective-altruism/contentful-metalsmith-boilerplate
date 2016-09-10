@@ -1,0 +1,21 @@
+if file
+	- var hostname = url.parse(file.url).hostname
+	- var embed = embedHostnames.indexOf(hostname) > -1
+	article.series-item.series-link
+		h3.series-item-title(class=useNumbering?'series-item-title-numbered':'')
+			a(href=file.url target="_blank")
+				if useNumbering
+					| #{index+1}. 
+				!= file.title
+				|  
+			| &nbsp;#[i.fa.fa-external-link]
+		if embed
+			.series-item-embed
+				include ./responsive-embed
+				+embed(file.url)
+		.series-item-excerpt.series-link-excerpt!= file.contents
+		if !embed
+			p.series-link-info.series-item-external-link-info
+				if file.author && file.author.length
+					span.series-link-info-author!= file.author
+				span.series-link-info-domain!= hostname

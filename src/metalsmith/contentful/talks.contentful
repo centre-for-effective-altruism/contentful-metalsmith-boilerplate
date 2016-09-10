@@ -1,0 +1,9 @@
+---
+title: Talks
+contentful:
+  content_type: talk
+  entry_template: talk.pug
+  entry_filename_pattern: talks/:fields.slug
+  permalink_style: true
+  order: fields.title
+---

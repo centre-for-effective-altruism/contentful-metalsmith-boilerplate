@@ -1,0 +1,10 @@
+.featured-image {
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	@include responsive-square(33%);
+	position: relative;
+}
+#page-title.featured-image-page-title {
+	// background-color:
+}

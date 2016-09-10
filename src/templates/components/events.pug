@@ -1,0 +1,25 @@
+mixin event(event)
+	- var dateFormat = 'D MMMM'
+	section.event(class=slugify(event.eventType))
+		h3.event-title
+			a(href=event.canonical)!= event.title
+		p.event-type!= event.type
+		p.event-date #{moment(event.startDate).format(dateFormat)}
+			if moment(event.endDate).isAfter(event.startDate,'day')
+				|  to #{moment(event.endDate).format(dateFormat)}
+
+if events && events.length > 0
+	if moment(events[0].startDate).isSameOrAfter(moment(), 'day')
+		h2 Upcoming events
+		.row
+			each event in events
+				if moment(event.startDate).isSameOrAfter(moment(), 'day')
+					.col-md-6
+						+event(event)
+	if moment(events[events.length-1].date).isBefore(moment(), 'day')
+		h2 Past events
+		.row
+			each event in events
+				if moment(event.startDate).isBefore(moment(), 'day')
+					.col-md-6
+						+event(event)

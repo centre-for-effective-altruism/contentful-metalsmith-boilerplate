@@ -1,0 +1,15 @@
+[
+  {
+    "name": "Layout",
+    "id": "layout",
+    "type": "Symbol",
+    "validations": [
+      {
+        "in": [
+          "Basic Page",
+          "Home Page"
+        ]
+      }
+    ]
+  }
+]

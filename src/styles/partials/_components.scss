@@ -1,0 +1,152 @@
+@import 'components/cards';
+@import 'components/embeds';
+@import 'components/featured-image';
+@import 'components/footnotes';
+@import 'components/heading-permalink';
+@import 'components/media-list';
+@import 'components/newsletter-signup';
+@import 'components/quotation';
+@import 'components/table-of-contents';
+
+.btn {
+	border-radius: 0 !important;
+	font-weight: $font-weight-normal;
+	font-style: italic;
+	// border-width: 2px;
+	@media(max-width:$screen-xs-max){
+		white-space: inherit;
+	}
+}
+.btn-secondary {
+    color: $site-primary;
+    background-color: $site-secondary;
+    border-color: darken($site-secondary,20%);
+}
+
+.form-control {
+	border-radius: 0;
+}
+
+
+.contact-form-container {
+	background-color: $gray-lighter;
+	padding-bottom: $grid-gutter-width/2;
+	@media(max-width:$container-md){
+		padding-top: $grid-gutter-width /2;
+	}
+}
+
+
+
+.centered-heading {
+	@include centered-heading();
+}
+
+
+.bg-alternate {
+	background-color: lighten($site-primary,50%)
+}
+
+.noscript {
+	display:none;
+	.no-js & {
+		display:block;
+	}
+}
+.onlyscript {
+	display:inherit;
+	.no-js & {
+		display:none;
+	}
+}
+
+.footnote-backref {
+	font-family: sans-serif;
+}
+
+.pagination-wrapper {
+	text-align: center;
+}
+
+
+span {
+
+	&.gwwc {
+		color: $gwwc !important;
+	}
+
+	&.eightythousandhours {
+		color: $eightythousandhours !important;
+	}
+	&.gpp {
+		color: $gpp !important;
+	}
+}
+
+
+.section-divider {
+	&:before {
+		content: ' ';
+		border-top: 1px solid #CCC;
+		width: 50%;
+		display: block;
+		margin: auto;
+	}
+}
+.section-divider,.section-no-divider {
+	margin: $grid-gutter-width auto;
+	h2 {
+		text-align: center;
+		margin: $grid-gutter-width 0;
+	}
+}
+
+.view-all-link {
+	font-family: $font-family-sans-serif;
+	text-align: center;
+	&>a {
+		color: #999;
+	}
+}
+
+
+.speakers-list {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	@include clearfix();
+	&>li {
+		float: left; display: block;
+	}
+}
+$speaker-list-divider-margin: 0.3em;
+.speakers-list-divider-comma {
+	margin-right: $speaker-list-divider-margin;
+}
+.speakers-list-divider-amp {
+	margin-left: $speaker-list-divider-margin;
+	margin-right: $speaker-list-divider-margin;
+}
+
+// members page
+
+.member-list {
+	.member-details {
+		height: 140px;
+		overflow: hidden;
+	}
+	.member-occupation {
+		line-height: 1.4em;
+		font-size: 16px;
+	}
+}
+
+
+h1,h2,h3,h4,h5,h6 {
+	.index {
+	    color: $site-secondary-dark;
+	    display: none;
+	}
+}
+
+

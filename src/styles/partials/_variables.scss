@@ -1,0 +1,52 @@
+// FONT FACES
+$font-family-serif: Merriweather, Georgia, Garamond, 'Times New Roman', serif;
+$font-family-sans-serif: Raleway, "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+$font-weight-normal: 300;
+$font-weight-bold: 700;
+// COLOURS
+
+$site-primary: #0C869B;
+$site-secondary: #00B2BE;
+$site-muted: #EEE;
+$site-dark-gray: #333;
+
+
+$site-first: $site-primary;
+$site-second: $site-secondary;
+
+
+// $site-highlight: #6c0000;
+// $site-lolight: #6c0000;
+
+// coefficients
+
+
+// site colours
+$site-light: #00B2BE;
+$site-highlight: $site-light;
+$site-lighter: #4FA8B8;
+$site-dark: #1B5266;
+$site-lolight: $site-dark;
+$site-darker: #022633;
+
+$site-secondary-light: #FFB557;
+$site-secondary-highlight: $site-secondary-light;
+$site-secondary-lighter: #FFC985;
+$site-secondary-dark: #FF8E00;
+$site-secondary-lolight: $site-secondary-dark;
+$site-secondary-darker: #E78100;
+
+
+$cea: #2c5aa9;
+$gwwc: #6C0000;
+$eightythousandhours: #3FBDD1;
+$gpp: #7E95CC;
+$tlycs: #ED1A24;
+$ace: #349895;
+
+$grid-gutter-width: 30px;
+$content-padding: $grid-gutter-width * 2;
+
+
+$footer-background-color: $site-muted;

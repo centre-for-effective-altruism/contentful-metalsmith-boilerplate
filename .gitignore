@@ -1,0 +1,12 @@
+.DS_Store
+build
+dest
+node_modules
+npm-debug.log
+.cache-require-paths.json
+.env
+.cache
+.icon_cache
+src/metalsmith/styles/*
+src/metalsmith/scripts/*
+.netlify

@@ -1,0 +1,70 @@
+html,body {
+    height:100%;
+}
+body {
+	background-color: #FFF;
+	font-weight: $font-weight-normal;
+	position: relative;
+}
+h1,h2,h3,h4,h5,h6 {
+	// color: $site-primary;
+}
+// don't line-wrap code blocks
+pre {
+    overflow-x: auto;
+}
+pre code {
+    word-wrap: normal;
+    white-space: pre;
+}
+// don't use a spinner for number inputs 
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+figure {
+	margin: 0 0 $grid-gutter-width/2;
+	.img-responsive {
+		margin-left: auto;
+	}
+	figcaption {
+		font-weight: $font-weight-normal;
+		padding: $grid-gutter-width/2 0 0;
+		h3, h4, p {
+			margin-top: 0;
+		}
+	}
+}
+table {
+	thead {
+		tr {
+			th {
+				background-color: $site-primary;
+				color: #FFF;
+			}
+		}
+	}
+	tbody {
+		tr {
+			th {
+				background-color: $site-secondary;
+			}
+		}
+	}
+	.border-right {
+		border-right: 1px solid #DDD;
+	}
+	&.table-striped>tbody>tr:nth-of-type(odd)>th{
+		background-color: darken($site-secondary,2%);
+	}
+}
+ul {
+	padding-left: 0;
+}
+
+::selection {
+	background-color: $site-primary;
+	color: #FFF;
+}

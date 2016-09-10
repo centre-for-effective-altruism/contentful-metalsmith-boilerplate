@@ -1,0 +1,27 @@
+mixin seriesArticleLink(item)
+	a(href='#series-article-'+item.file.slug)!= item.file.title
+
+aside.table-of-contents-wrapper
+	h3.table-of-contents-heading Contents
+	ul.table-of-contents
+		each child,index in seriesSet[seriesSlug].children
+			li.table-of-contents-entry
+				case child.type
+					when 'series'
+						a(href='#series-'+child.file.slug)!= child.file.title
+						if tocDepth>1
+							if useNumbering
+								ol.table-of-contents-entry-children
+									each seriesChild,index in child.children
+										li.table-of-contents-child-entry
+											+seriesArticleLink(seriesChild)
+							else
+								ul.table-of-contents-entry-children
+									each seriesChild,index in child.children
+										li.table-of-contents-child-entry
+											+seriesArticleLink(seriesChild)
+											
+					when 'article'
+						+seriesArticleLink(child)
+					when 'page'
+						+seriesArticleLink(child)

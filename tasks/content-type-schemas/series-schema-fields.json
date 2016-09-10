@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Items",
+    "id": "items",
+    "type": "Array",
+    "items": {
+      "type": "Link",
+      "linkType": "Entry",
+      "validations": []
+    },
+    "required": true,
+    "validations": []
+  }
+]

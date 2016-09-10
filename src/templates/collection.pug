@@ -1,0 +1,102 @@
+extends ./layout
+	
+block content
+	- var files = pagination ? pagination.files : files || [];
+	//- Sort / Search / Filter
+	- showSearch = false
+	if slug === 'talks' || slug === 'speakers'
+		- showSearch = true
+	if slug === 'talks'
+		- var searchCTA = "Search by talk title, speaker, or tag"
+		- var localSearchData = JSON.stringify(searchData.talks.concat(searchData.tags).concat(searchData.speakersWithTalks))
+	if slug === 'speakers'
+		- var searchCTA = "Search speakers"
+		- var localSearchData = JSON.stringify(searchData.speakers)
+	
+	if showSearch
+		section.section-no-divider.section-search
+			.row
+				.col-md-6.col-md-offset-3
+					form.form.search-form
+						.form-group
+							label.sr-only(for='search-text')!= searchCTA
+							input.form-control.search-form-text-input(name='search-text' placeholder=searchCTA+'...')
+		script.
+			loadScript('search');
+			loadScript(function(){
+				(function($){
+					$('.search-form-text-input').searchFactory({
+						data: !{localSearchData}
+					});
+				}(jQuery))
+			});
+			
+				
+
+	//- Files
+	include ./components/cards
+	- var perRow = 4
+	- var cardOpts = {}
+	// - talks
+	- cardOpts.speakers = true
+	- cardOpts.event = true
+	//- speakers
+	- cardOpts.website = false
+	//- events
+	- cardOpts.location = false
+	- cardOpts.dates = true
+	//- tags?
+
+	if slug === 'events' && pagination && pagination.num === 1
+		- var upcomingEvents = []
+		- var pastEvents = []
+		each event in files
+			if !event.startDate || moment(event.startDate).isAfter(moment(),'day')
+				- upcomingEvents.push(event)
+			else
+				- pastEvents.push(event)
+		if upcomingEvents.length>0
+			- perRow = 3
+			section.section-divider
+				h2 Upcoming Events
+				each i, index in upcomingEvents
+					if index%perRow === 0
+						.row
+							each item in upcomingEvents.slice(index,index+perRow)
+								.col-sm-4
+									+card(item,cardOpts)
+		if pastEvents.length>0
+			- perRow = 4
+			section.section-divider
+				h2 Past Events
+				each i, index in pastEvents
+					if index%perRow === 0
+						.row
+							each item in pastEvents.slice(index,index+perRow)
+								.col-sm-6.col-md-3
+									+card(item,cardOpts)
+	else
+		section.section-no-divider
+			each i, index in files
+				if index%perRow === 0
+					.row
+						each item in files.slice(index,index+perRow)
+							.col-sm-6.col-md-3
+								+card(item,cardOpts)
+
+	if pagination && pagination.pages.length > 1
+		section.section-divider
+			//- Pagination
+			nav.pagination-wrapper(aria-label='Page navigation')
+				ul.pagination
+					if pagination.previous
+						li
+							a(href=pagination.previous.canonical, aria-label='Previous')
+								span(aria-hidden='true') «
+					each page,index in pagination.getPages(10)
+						li
+							a(href=page.canonical)!= index+1
+					if pagination.next
+						li
+							a(href=pagination.next.canonical, aria-label='Previous')
+								span(aria-hidden='true') »

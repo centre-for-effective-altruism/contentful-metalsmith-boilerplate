@@ -1,0 +1,16 @@
+if file
+	article.series-item.series-person(id='series-article-'+file.slug)
+		.row
+			.col-xs-6.col-sm-3
+				.series-person-photo-wrapper
+					.content
+						a(href=file.canonical)
+							img.img-responsive.series-person-photo(src=contentfulImage(file.photo))
+			.col-xs-6.col-sm-9
+				h3.series-item-title.series-person-title
+					a(href=file.canonical)
+						!= file.title
+				if file.jobTitle && file.jobTitle.length
+					p.series-person-job-title
+						include ../helpers/job-title
+						+jobTitle(file.jobTitle, file.organisations)

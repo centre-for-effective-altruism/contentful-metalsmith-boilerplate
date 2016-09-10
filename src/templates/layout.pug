@@ -1,0 +1,25 @@
+doctype html
+html.no-js(prefix="og: http://ogp.me/ns#")
+    include ./layout/head
+    body(class=[slug==="/" ? 'home' : slug, collectionSlug])
+        include ./layout/navbar
+        block contentWrapper
+            section#content-wrapper(style="background-image: url('https://images.contentful.com/70c29flvim3q/1QUxlZRmocSmqsAgskciuG/049cb55c4221872f8a784a44047ca37b/world-map-greyscale.jpg');")
+                .container
+                    include ./layout/warnings
+                    block header
+                        include ./layout/header
+                        +header()
+                    block content
+    footer.footer
+        block footer
+            include ./layout/footer
+    if environment !=='production'
+        .build-info
+            p
+                | Build environment: 
+                em #{environment}
+                |  | Built at: 
+                em #{moment().utc().format('YYYY-M-D HH:mm')} (UTC)
+    block postContent
+    include ./layout/scripts 

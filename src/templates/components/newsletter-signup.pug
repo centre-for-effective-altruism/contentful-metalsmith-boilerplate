@@ -1,0 +1,24 @@
+- var text = showText === false ? false : true;
+.newsletter-signup
+	if text
+		.newsletter-signup-call-to-action-wrapper
+			p.newsletter-signup-call-to-action For news and opportunities:
+	.newsletter-signup-form-wrapper
+		form.form.newsletter-signup-form(action="https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=51c1df13ac" method="post" target="_blank" novalidate)
+			.input-group
+				label(for="newsletter-signup-email" class="control-label sr-only" aria-hidden="true") Email Address (required)
+				input.form-control.newsletter-signup-email(placeholder='Email address' name="EMAIL")
+				span.input-group-btn
+					button.btn.btn-primary.newsletter-signup-subscribe Subscribe
+			.clearfix
+				.newsletter-signup-result
+				div(style="position: absolute; left: -5000px;" aria-hidden="true")
+					input(type="text" name="b_52b028e7f799cca137ef74763_51c1df13ac" tabindex="-1" value="")
+				input(type="hidden" value="effectivealtruism.org" name="SOURCE")
+script.
+	(function(){
+		var d = document.getElementsByClassName("newsletter-signup-subscribe");
+		for (var i = 0; i < d.length; i++) {
+			d[i].className += " disabled";
+		}
+	})();

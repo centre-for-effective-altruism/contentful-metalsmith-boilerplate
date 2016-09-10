@@ -1,0 +1,6 @@
+if seriesSet['media-highlights']
+	ul.media-highlights
+		each child in seriesSet['media-highlights'].children
+			li.media-highlights-item
+				a.media-highlights-item-link(href=child.file.url target="_blank" class='media-highlight-'+slugify(child.file.publication))
+					span.sr-only!= child.file.publication

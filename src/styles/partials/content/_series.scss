@@ -1,0 +1,99 @@
+.series {
+	// border
+}
+.series-child-series-description {
+
+}
+.series-item {
+	margin-bottom: $grid-gutter-width;
+}
+.series-item-title {
+	font-size: 18px;
+	margin: 0;
+	.heading-permalink {
+		display: none;
+	}
+	&>i {
+		color: #DDD;
+	}
+
+}
+.series-item-subtitle {
+	color: #999;
+	font-style: italic;
+}
+.series-item-title, .series-item-subtitle {
+	&:hover {
+		.heading-permalink {
+			opacity: 0;
+		}
+	}
+}
+.series-item-title-numbered {
+	$indent:16px;
+	@media(max-width: $screen-sm-max){
+		padding-left: $indent ;
+	}
+	text-indent: -$indent;
+	&>* {
+		text-indent: 0;
+	}
+}
+.series-item-embed {
+	margin-top: $grid-gutter-width/2;
+}
+
+.series-organisation>.row {
+    padding-bottom: $grid-gutter-width/2;
+    margin-bottom: $grid-gutter-width/2;
+    border-bottom: 1px dashed #DDD;
+    @media(min-width: $screen-md){
+    	display: flex;
+	    align-items: center;
+	}
+}
+.series-organisation-title {
+    margin-top:0;
+}
+
+.series-organisation-logo img {
+    margin: 0 auto;
+}
+.series-link-excerpt {
+	&>p {
+		// margin-bottom: 0;
+	}
+}
+.series-link {
+}
+.series-item-external-link-info {
+	color: #DDD;
+	margin-bottom: 0;
+	margin-top: -16.5px;
+}
+.series-link-info-author {
+	&:after {
+		content: " / ";
+	}
+}
+
+.series-person-title {
+	margin-top: 0;
+}
+.series-person-photo-wrapper {
+	@include responsive-square();
+	overflow: hidden;
+}
+
+.series-book-author {
+	font-weight: $font-weight-bold;
+	&:before {
+		content: '— ';
+	}
+}
+.series-item-external-link-info {
+	overflow: hidden;
+	@media(max-width: $screen-sm-max){
+		font-size: 12px;
+	}
+}

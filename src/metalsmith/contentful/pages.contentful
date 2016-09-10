@@ -1,0 +1,8 @@
+---
+title: Pages
+contentful:
+  content_type: page
+  entry_template: page.pug
+  entry_filename_pattern: pages/:fields.slug
+  permalink_style: true
+---

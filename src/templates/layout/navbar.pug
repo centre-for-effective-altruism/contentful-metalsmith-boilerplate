@@ -1,0 +1,19 @@
+nav#navbar-main.navbar.navbar-primary.navbar-fixed-top.nav-minimal
+    .container
+        .navbar-header
+            button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar-main-collapse')
+                span.sr-only Toggle navigation
+                i.fa.fa-bars
+            include ./navbar-header-brand
+        #navbar-main-collapse.navbar-main-menu.collapse.navbar-collapse
+            ul.nav.navbar-nav
+                if seriesSet['main-navigation'] && seriesSet['main-navigation'].children
+                    each item in seriesSet['main-navigation'].children
+                        - var file = item.file
+                        case item.type
+                            when 'page'
+                                li.nav(class=(breadcrumb_path && breadcrumb_path[0] && breadcrumb_path[0].path === file.path ? 'active' : ''))
+                                    a(href=file.canonical, id="navbar-link-"+file.slug, title=file.title)!= file.shortTitle || file.title
+                            when 'link'
+                                li.nav(class=(file.url.substr(0,1)==='/' && path.replace(/\//g,'') === file.url.replace(/\//g,'') ? 'active' : ''))
+                                    a(href=file.url id="navbar-link-"+slugify(file.title) target=file.url.substr(0,1)==='/'?false:'_blank')!= file.title
