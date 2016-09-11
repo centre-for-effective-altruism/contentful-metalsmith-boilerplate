@@ -12,6 +12,16 @@
       "omitted": false
     },
     {
+      "id": "shortTitle",
+      "name": "Short Title",
+      "type": "Symbol",
+      "localized": true,
+      "required": false,
+      "validations": [],
+      "disabled": false,
+      "omitted": false
+    },
+    {
       "id": "slug",
       "name": "Slug",
       "type": "Symbol",

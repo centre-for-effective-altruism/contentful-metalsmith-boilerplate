@@ -1,0 +1,22 @@
+[
+    {
+      "id": "uri",
+      "name": "Link URL/URI",
+      "type": "Symbol",
+      "localized": false,
+      "required": true,
+      "validations": [
+        {
+          "unique": true
+        },
+        {
+          "regexp": {
+            "pattern": "^(ftp|http|https):\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?$|^\\/[a-z0-9\\-]+[a-z0-9\\-\\/]*$"
+          },
+          "message": "Either use a fully-qualified URL (e.g. https://www.example.com), or a path relative to the root domain of this website (e.g. for www.thiswebsite.com/page-name, use /page-name)."
+        }
+      ],
+      "disabled": false,
+      "omitted": false
+    }
+  ]

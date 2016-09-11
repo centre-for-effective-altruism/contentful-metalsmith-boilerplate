@@ -57,16 +57,24 @@ function validateContentfulSpaceID (response) {
 }
 
 // UI logic
+function run() {
+	banner('Generate Environment File', `Generate a ${chalk.cyan(`.env`)} file that exposes environment variables such as API keys. You can generate Contentful API keys from the 'APIs' tab of your Contentful Space.\n\n You'll need to generate ${chalk.cyan(`delivery and preview`)} API keys, as well as a ${chalk.cyan(`content management`)} API key`)
 
-banner('Generate Environment File', `Generate a ${chalk.cyan(`.env`)} file that exposes environment variables such as API keys. You can generate Contentful API keys from the 'APIs' tab of your Contentful Space.\n\n You'll need to generate ${chalk.cyan(`delivery and preview`)} API keys, as well as a ${chalk.cyan(`content management`)} API key`)
-
-inquirer.prompt(questions)
-.then((answers) => {
-	const dotenv = Object.keys(dotenvTemplateDefaults).map((key) => `${key}=${dotenvTemplateDefaults[key]}`)
-		.concat(Object.keys(answers).map((key) => `${key}=${answers[key]}`));
-	return fs.writeFileAsync(path.join(__dirname,'..','.env'),dotenv.join('\n'))
-	.then(() => {
-		console.log(tick,chalk.cyan('.env'),'file created successfully')
+	return inquirer.prompt(questions)
+	.then((answers) => {
+		const dotenv = Object.keys(dotenvTemplateDefaults).map((key) => `${key}=${dotenvTemplateDefaults[key]}`)
+			.concat(Object.keys(answers).map((key) => `${key}=${answers[key]}`));
+		return fs.writeFileAsync(path.join(__dirname,'..','.env'),dotenv.join('\n'))
+		.then(() => {
+			console.log(tick,chalk.cyan('.env'),'file created successfully')
+		});
 	});
-});
+}
 
+// export the run() function so we can call it programmatically
+if ( !(require.main === module) ){
+    module.exports = {run};
+// otherwise run as a CLI
+} else {
+	run();
+}

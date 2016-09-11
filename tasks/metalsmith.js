@@ -1,6 +1,6 @@
 // start a timer
-var buildTime = process.hrtime();
-var buildTimeDiff = buildTime;
+let buildTime = process.hrtime();
+let buildTimeDiff = buildTime;
 // load environment variables
 require('dotenv').load({silent: true});
 // process.env.NODE_ENV VARS - default to development
@@ -12,97 +12,109 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Start the build!
-var chalk = require('chalk');
+const chalk = require('chalk');
 message('Generating the EA Global website!',chalk.cyan.inverse,true);
 message('Initialising new build...',chalk.dim,true);
 // Metalsmith
-var Metalsmith = require('metalsmith');
+const Metalsmith = require('metalsmith');
+const Promise = require('bluebird');
 message('Loaded Metalsmith');
 // templating
-var metadata = require('metalsmith-metadata');
-var moment = require('moment');
-var ignore      = require('metalsmith-ignore');
-var contentful = require('contentful-metalsmith');
-var slug = require('slug'); slug.defaults.mode = 'rfc3986';
-var layouts  = require('metalsmith-layouts');
-message('Loaded templating');
-var lazysizes = require('metalsmith-lazysizes');
-// metadata and structure
-var branch  = require('metalsmith-branch');
-var collections  = require('metalsmith-collections');
-var excerpts = require('metalsmith-excerpts');
-var pagination = require('metalsmith-pagination');
-var navigation = require('metalsmith-navigation');
-message('Loaded metadata');
-// static file compilation
-var parseHTML = require('../lib/parseHTML').parse;
-var shortcodes = require('metalsmith-shortcodes');
-var concat = require('metalsmith-concat');
-var icons = require('metalsmith-icons');
+// const metadata = require('metalsmith-metadata');
+// const moment = require('moment');
+// const ignore      = require('metalsmith-ignore');
+// const contentful = require('contentful-metalsmith');
+// const slug = require('slug'); slug.defaults.mode = 'rfc3986';
+// const layouts  = require('metalsmith-layouts');
+// message('Loaded templating');
+// const lazysizes = require('metalsmith-lazysizes');
+// // metadata and structure
+// const branch  = require('metalsmith-branch');
+// const collections  = require('metalsmith-collections');
+// const excerpts = require('metalsmith-excerpts');
+// const pagination = require('metalsmith-pagination');
+// const navigation = require('metalsmith-navigation');
+// message('Loaded metadata');
+// // static file compilation
+// const parseHTML = require('../lib/parseHTML').parse;
+// const shortcodes = require('metalsmith-shortcodes');
+// const concat = require('metalsmith-concat');
+// const icons = require('metalsmith-icons');
 
-// var feed = require('metalsmith-feed');
-// var headingsIdentifier = require('metalsmith-headings-identifier');
-// var headings = require('metalsmith-headings');
-var striptags = require('striptags');
-var htmlEntities = require('html-entities').Html5Entities;
-// templating utility functions
-var strip = function (input){
-    // strip out HTML & decode entities for using HTML in Jade attributes
-    function subs(input){
-            var substitutions = [
-                ['&#xA0;',' '],['&nbsp;', ' ']
-            ];
-            var i = striptags(input);
-            substitutions.forEach(function(substitution){
-                i = i.replace(substitution[0],substitution[1]);
-            });
-            return i;
+// // const feed = require('metalsmith-feed');
+// // const headingsIdentifier = require('metalsmith-headings-identifier');
+// // const headings = require('metalsmith-headings');
+// const striptags = require('striptags');
+// const htmlEntities = require('html-entities').Html5Entities;
+// // templating utility functions
+// const strip = function (input){
+//     // strip out HTML & decode entities for using HTML in Jade attributes
+//     function subs(input){
+//             const substitutions = [
+//                 ['&#xA0;',' '],['&nbsp;', ' ']
+//             ];
+//             const i = striptags(input);
+//             substitutions.forEach(function(substitution){
+//                 i = i.replace(substitution[0],substitution[1]);
+//             });
+//             return i;
         
-    }
-    return htmlEntities.decode(subs(input));
+//     }
+//     return htmlEntities.decode(subs(input));
 
-};
-var contentfulImage = function(image,query){
-    var src = url.parse(image.fields.file.url,true);
-    if (src.search) delete src.search;
-    src.query = Object.assign({},src.query,query);
-    src.protocol = 'https';
-    return src.format();
-}
-var jsFiles = {};
-message('Loaded static file compilation');
+// };
+// const contentfulImage = function(image,query){
+//     const src = url.parse(image.fields.file.url,true);
+//     if (src.search) delete src.search;
+//     src.query = Object.assign({},src.query,query);
+//     src.protocol = 'https';
+//     return src.format();
+// }
+// const jsFiles = {};
+// message('Loaded static file compilation');
 
-// only require in development
-/*if(process.env.NODE_ENV==='development'){
-    var watch = require('glob-watcher');
-    var nodeStatic = require('node-static');
-    message('Loaded dev modules');
-}*/
+// // only require in development
+// /*if(process.env.NODE_ENV==='development'){
+//     const watch = require('glob-watcher');
+//     const nodeStatic = require('node-static');
+//     message('Loaded dev modules');
+// }*/
 
-// only require in production
-if(process.env.NODE_ENV==='staging' || process.env.NODE_ENV==='production'){
-    var htmlMinifier = require('metalsmith-html-minifier');
-    var purifyCSS = require('purify-css');
-    var cleanCSS = require('metalsmith-clean-css');
-    var sitemap = require('metalsmith-sitemap');
-    message('Loaded production modules');
-}
-// utility
-var fs = require('fs');
-var path = require('path');
-var merge = require('merge');
-var typogr = require('typogr');
-var minimatch = require('minimatch');
-var url = require('url');
-var truncate = require('truncate');
-var NotificationCenter = require('node-notifier').NotificationCenter;
-var notifier = new NotificationCenter();
-// utility global var to hold 'site' info from our settings file, for reuse in other plugins
-var site = JSON.parse(fs.readFileSync(path.join(__dirname,'../src/metalsmith/settings/site.json' )).toString());
-site.url = site.protocol + site.domain;
-message('Loaded utilities...');
-message('All dependencies loaded!',chalk.cyan);
+// // only require in production
+// if(process.env.NODE_ENV==='staging' || process.env.NODE_ENV==='production'){
+//     const htmlMinifier = require('metalsmith-html-minifier');
+//     const purifyCSS = require('purify-css');
+//     const cleanCSS = require('metalsmith-clean-css');
+//     const sitemap = require('metalsmith-sitemap');
+//     message('Loaded production modules');
+// }
+// // utility
+// const fs = require('fs');
+// const path = require('path');
+// const merge = require('merge');
+// const typogr = require('typogr');
+// const minimatch = require('minimatch');
+// const url = require('url');
+// const truncate = require('truncate');
+// const NotificationCenter = require('node-notifier').NotificationCenter;
+// const notifier = new NotificationCenter();
+// // utility global const to hold 'site' info from our settings file, for reuse in other plugins
+// const site = JSON.parse(fs.readFileSync(path.join(__dirname,'../src/metalsmith/settings/site.json' )).toString());
+// site.url = site.protocol + site.domain;
+// message('Loaded utilities...');
+// message('All dependencies loaded!',chalk.cyan);
 
+// start things happening...
+Promise.resolve()
+.then(() => {
+    // get information about all our content types (contentful data, collections, pagination etc)
+    return require('../lib/metalsmith/helpers/content-types')();
+})
+.then((contentTypes) => {
+    console.log(contentTypes)
+    console.log('Build here!');
+    // build()();
+})
 
 
 // call the master build function
@@ -116,7 +128,7 @@ function build(buildCount){
         }
 
         // hostnames where we should trigger an embed instead of a straight link
-        var embedHostnames = [
+        const embedHostnames = [
             'youtube.com',
             'www.youtube.com',
             'youtu.be',
@@ -124,7 +136,7 @@ function build(buildCount){
         ];
 
         // shortcodes is used twice so abstract the options object
-        var shortcodeOpts = {
+        const shortcodeOpts = {
             directory: path.normalize(__dirname+'/../src/templates/shortcodes'),
             pattern: '**/*.html',
             engine:'pug',
@@ -141,7 +153,7 @@ function build(buildCount){
 
 
         // START THE BUILD!
-        var colophonemes = new Metalsmith(__dirname);
+        const colophonemes = new Metalsmith(__dirname);
         colophonemes
         .use(logMessage('NODE_ENV: ' + process.env.NODE_ENV,chalk.dim,true))
         .use(logMessage('NODE VERSION: ' + process.version,chalk.dim,true))
@@ -159,7 +171,7 @@ function build(buildCount){
         }))
         .use(function (files,metalsmith,done){
             // build a full domain from our settings
-            var meta = metalsmith.metadata();
+            const meta = metalsmith.metadata();
             if(process.env.NODE_ENV === 'staging'){
                 meta.site.domain = meta.site.domain.replace('www','staging');
             }
@@ -169,7 +181,7 @@ function build(buildCount){
         .use(function (files,metalsmith,done){
             // add defaults to all our contentful source files
             /*eslint-disable */
-            var defaults = {
+            const defaults = {
                 space_id: process.env.CONTENTFUL_SPACE, 
                 limit: 2000,
                 permalink_style: true
@@ -198,7 +210,7 @@ function build(buildCount){
         .use(function (files,metalsmith,done){
             // move the contentful 'fields' metadata to the file's global meta
             Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function(file){
-                var meta = files[file];
+                const meta = files[file];
                 // make sure we have contentful data
                 if(!meta.data || !meta.data.fields){ 
                     return; 
@@ -218,7 +230,7 @@ function build(buildCount){
                 meta.contents = meta.contents && meta.contents.length>0 ? meta.contents : '';
 
                 // remap 'layout' key from text string to filename
-                var layoutSubstitutions = {
+                const layoutSubstitutions = {
                     "Basic Page": 'page.pug',
                     "Page with Table of Contents": 'page-with-toc.pug',
                     "Home Page": 'home.pug',
@@ -380,7 +392,7 @@ function build(buildCount){
         .use(function (files, metalsmith, done) {
             // check all of our HTML files have slugs
             Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function(file){
-                var meta = files[file];
+                const meta = files[file];
                 // add a slug
                 if(!meta.slug) {
                     if (meta.title) {
@@ -398,7 +410,7 @@ function build(buildCount){
         .use(function (files,metalsmith,done){
             // move pages from /pages/ into site root
             Object.keys(files).filter(minimatch.filter('pages/**/index.html')).forEach(function(file){
-                var newPath = file.replace('pages/','');
+                const newPath = file.replace('pages/','');
                 if(newPath==='home/index.html'){
                     newPath = 'index.html';
                 }
@@ -417,14 +429,14 @@ function build(buildCount){
             })
             // move galleries under events
             Object.keys(files).filter(minimatch.filter('galleries/**')).forEach(function(file){
-                var filePath = 'events/'+files[file].event.fields.slug+'/photos/index.html';
+                const filePath = 'events/'+files[file].event.fields.slug+'/photos/index.html';
                 files[filePath] = files[file];
                 files[filePath].title = 'Photos';
                 delete files[file];
             })
             // move tags under talks
             Object.keys(files).filter(minimatch.filter('tags/**')).forEach(function(file){
-                var filePath = 'talks/'+file;
+                const filePath = 'talks/'+file;
                 files[filePath] = files[file];
                 delete files[file];
             })
@@ -457,11 +469,11 @@ function build(buildCount){
         )
         .use(logMessage('Added navigation metadata'))
         .use(function (files, metalsmith, done) {
-            var dynamicSiteRedirects = files['settings/_redirects'].contents.toString().split('\n').sort();
+            const dynamicSiteRedirects = files['settings/_redirects'].contents.toString().split('\n').sort();
             // build a list of redirects from file meta
-            var metadata =metalsmith.metadata();
-            var redirects = {};
-            var redirectsFile = [];
+            const metadata =metalsmith.metadata();
+            const redirects = {};
+            const redirectsFile = [];
             Object.keys(files).forEach(function (file) {
                 if(files[file].redirects){
                     files[file].redirects.forEach(function(redirect){
@@ -488,7 +500,7 @@ function build(buildCount){
         .use(function (files, metalsmith, done) {
             // create a lookup table of contentful data IDs and metalsmith files
             metalsmith.metadata().fileIDMap = {};
-            var fileIDMap = metalsmith.metadata().fileIDMap;
+            const fileIDMap = metalsmith.metadata().fileIDMap;
             Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function(file){
                 if (files[file].id) {
                     fileIDMap[files[file].id] = files[file];
@@ -497,18 +509,18 @@ function build(buildCount){
             done();
         })
         .use(function (files, metalsmith, done) {
-            var defaultItem = {
+            const defaultItem = {
                 file: {},
                 type: '',
                 children: []
             };
-            var fileIDMap = metalsmith.metadata().fileIDMap;
+            const fileIDMap = metalsmith.metadata().fileIDMap;
             // recursive function to traverse series
             function getChildren(data,seriesSlug){
-                var children = [];
+                const children = [];
                 if(data.sys.contentType.sys.id === 'series' && data.fields.items && data.fields.items.length>0){
                     data.fields.items.forEach(function(child){
-                        var childItem = Object.assign({},defaultItem);
+                        const childItem = Object.assign({},defaultItem);
                         childItem.file = fileIDMap[child.sys.id];
                         if(!childItem.file) {
                             // file is probably archived or unpublished
@@ -531,10 +543,10 @@ function build(buildCount){
                 }
                 return children;
             }
-            var series = {};
+            const series = {};
             // build a hierarchy of item IDs
             Object.keys(files).filter(minimatch.filter('series/**/*.html')).forEach(function(file){
-                var s = Object.assign({},defaultItem);
+                const s = Object.assign({},defaultItem);
                 s.file = fileIDMap[files[file].data.sys.id];
                 s.type = fileIDMap[files[file].data.sys.contentType.sys.id];
                 s.children = getChildren(files[file].data,files[file].slug);
@@ -547,7 +559,7 @@ function build(buildCount){
         .use(logMessage('Built series hierarchy'))
         
         // .use(function (files, metalsmith, done) {
-        //     var talks = metalsmith.metadata().collections['talks'];
+        //     const talks = metalsmith.metadata().collections['talks'];
         //     talks.forEach(function(talk){
         //         console.log(talk.tags);
         //     });
@@ -580,7 +592,7 @@ function build(buildCount){
         .use(logMessage('Converted Shortcodes'))
         .use(function (files, metalsmith, done) {
             // serialize all talks/speakers/tags into a searchable object
-            var meta = metalsmith.metadata();
+            const meta = metalsmith.metadata();
             meta.searchData = {};
             ['talks','speakers','tags'].forEach(function(contentType){
                 meta.searchData[contentType] = meta.collections[contentType].map((item) => ({
@@ -590,9 +602,9 @@ function build(buildCount){
                 }));
             });
             // get another array which is only speakers with talks
-            var speakerIDs = [];
+            const speakerIDs = [];
             meta.collections['talks'].forEach(function(talk){
-                var ids = talk.speakers.map(function(speaker){
+                const ids = talk.speakers.map(function(speaker){
                     return speaker.sys.id
                 });
                 speakerIDs = speakerIDs.concat(ids);
@@ -674,15 +686,15 @@ function build(buildCount){
             .use(logMessage('Minified HTML'))
             .use(logMessage('Cleaning CSS',chalk.dim))
             .use(function purifyCss (files, metalsmith, done) {
-                var cssFile = 'styles/app.min.css';
-                var whitelist = [
+                const cssFile = 'styles/app.min.css';
+                const whitelist = [
                 ];
-                var html = [];
+                const html = [];
                 Object.keys(files).filter(minimatch.filter('**/*.@(html|js)')).forEach(function(file){
                     html.push(files[file].contents.toString())
                 });
                 html = html.join('\n');
-                var purifiedCSS = purifyCSS(html, files[cssFile].contents.toString(), {
+                const purifiedCSS = purifyCSS(html, files[cssFile].contents.toString(), {
                     whitelist: whitelist,
                 });
                 files[cssFile].contents = new Buffer(purifiedCSS);
@@ -722,7 +734,7 @@ function build(buildCount){
 
         // Run build
         colophonemes.use(logMessage('Finalising build')).build(function(err,files){
-            var t = formatBuildTime(buildTime);
+            const t = formatBuildTime(buildTime);
             if(err){
                 message('Build failed!',chalk.red.bold);
                 console.trace(err);
@@ -757,13 +769,13 @@ function build(buildCount){
     };
 }
 // call master build function
-build()();
+
 
 //// DEVELOPMENT RELOADING
 // based on example at https://www.npmjs.com/package/metalsmith-changed
 /*if(process.env.NODE_ENV === 'development'){
     // server
-    var serve = new nodeStatic.Server(path.join(__dirname,'..','build'));
+    const serve = new nodeStatic.Server(path.join(__dirname,'..','build'));
     require('http').createServer((req, res) => {
       req.addListener('end', () => serve.serve(req, res));
       req.resume();
@@ -789,7 +801,7 @@ build()();
 function message(m,c,t){
     c = c||chalk.yellow.bold
     t = t||false;
-    var output = c(m);
+    let output = c(m);
     if(!t) {
         output += '................................................'.substr(m.length)
         output += chalk.dim('(+'+formatBuildTimeDiff()+' / '+formatBuildTime()+')')
@@ -806,11 +818,11 @@ function logMessage (m,c,t){
 // FORMAT BUILD TIMER INTO Mins : secs . milliseconds
 function formatBuildTime(hrTimeObj){
     hrTimeObj = hrTimeObj || buildTime;
-    var t = process.hrtime(hrTimeObj);
+    const t = process.hrtime(hrTimeObj);
     return (t[0] + (t[1]/10e+9)).toFixed(3)+'s';
 }
 function formatBuildTimeDiff(){
-    var t = buildTimeDiff;
+    const t = buildTimeDiff;
     buildTimeDiff = process.hrtime();
     return formatBuildTime(t);
 }

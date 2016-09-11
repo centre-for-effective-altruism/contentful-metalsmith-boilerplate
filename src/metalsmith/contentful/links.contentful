@@ -1,8 +1,0 @@
----
-title: Links
-contentful:
-  content_type: link
-  entry_template: link.pug
-  entry_filename_pattern: links/:sys.id
-  permalink_style: true
----
