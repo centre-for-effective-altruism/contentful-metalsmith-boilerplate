@@ -1,14 +1,21 @@
+// Schema for Posts
 module.exports = {
-    "name": "Post",
-    "contentType": "post",
-    "slugField": ":sys.id",
-    "plural": "Posts",
-    "collection": {
-        "sort": "date",
-        "reverse": true
-    },
-    "createPage": true,
-    "pagination": {
-        "perPage": 10
-    }
+  name: {
+    singular: 'Post',
+    plural: 'Posts'
+  },
+  slug: {
+    singular: 'post',
+    plural: 'posts'
+  },
+  contentfulId: 'post',
+  slugField: ':sys.id',
+  collection: {
+    sort: 'date',
+    reverse: true
+  },
+  createPage: true,
+  pagination: {
+    perPage: 10
+  }
 }

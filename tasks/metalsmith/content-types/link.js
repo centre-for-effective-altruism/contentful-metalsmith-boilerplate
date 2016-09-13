@@ -1,10 +1,18 @@
+// Schema for Links
 module.exports = {
-    "name": "Link",
-    "contentType": "link",
-    "slugField": ":sys.id",
-    "plural": "Links",
-    "collection": {
-        "sort": "title"
-    },
-    "createPage": false
+  name: {
+    singular: 'Link',
+    plural: 'Links'
+  },
+  slug: {
+    singular: 'link',
+    plural: 'links'
+  },
+  contentfulId: 'link',
+  slugField: ':sys.id',
+  collection: {
+    sort: 'title',
+    reverse: false
+  },
+  createPage: false
 }

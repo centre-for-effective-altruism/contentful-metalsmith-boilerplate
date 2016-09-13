@@ -26,37 +26,37 @@
 
 */
 // cookies
-global.cookies = require('browser-cookies');
+global.cookies = require('browser-cookies')
 // lazysizes
-global.lazySizes = require('lazysizes');
-require('lazysizesRespImg');
-require('lazysizesBGSet');
+global.lazySizes = require('lazysizes')
+require('lazysizesRespImg')
+require('lazysizesBGSet')
 
 // bootstrap javascript plugins
 
-// require('bootstrapDropdown');
-require('bootstrapCollapse');
-require('bootstrapTransition');
-// require('bootstrapAffix');
-// require('bootstrapScrollspy');
+// require('bootstrapDropdown')
+require('bootstrapCollapse')
+require('bootstrapTransition')
+// require('bootstrapAffix')
+// require('bootstrapScrollspy')
 require('bootstrapModal')
 // require('bootstrapTooltip')
 // third party bootstrap plugins
 // inject breakpoints into the global scope so we can use them elsewhere
 global.breakpoints = {
-    xs:480,
-    sm:768,
-    md:992,
-    lg:1200
-};
+  xs: 480,
+  sm: 768,
+  md: 992,
+  lg: 1200
+}
 
 // // GreenSock Animation Plugin
-// require('gsap-tweenlite');
-// require('gsap-timelinelite');
-// require('GSAPEasing');
-// require('GSAPCSSPlugin');
-// require('GSAPAttrPlugin');
-// require('GSAPScrollToPlugin');
+// require('gsap-tweenlite')
+// require('gsap-timelinelite')
+// require('GSAPEasing')
+// require('GSAPCSSPlugin')
+// require('GSAPAttrPlugin')
+// require('GSAPScrollToPlugin')
 
 // // ScrollMagic
 // global.ScrollMagic = require('scrollmagic')
@@ -64,20 +64,17 @@ global.breakpoints = {
 // require('scrollmagicAnimationGSAP')
 
 // jQuery Plugins
-// global.iFrameResize = require('iframeResizer');
+// global.iFrameResize = require('iframeResizer')
 
 // form/data validation library
 
-
 // number formatting
-// global.numeral = require('numeral');
+// global.numeral = require('numeral')
 
 // exit intent plugin
 // global.ouibounce = require('ouibounce')
 
 // main app scripts
-require('./lib/main');
-require('./lib/analytics');
-// require('./lib/newsletter');
-
-
+require('./lib/main')
+require('./lib/analytics')
+// require('./lib/newsletter')

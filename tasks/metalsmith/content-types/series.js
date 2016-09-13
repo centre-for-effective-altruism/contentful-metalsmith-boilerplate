@@ -1,10 +1,18 @@
+// Schema for Series
 module.exports = {
-    "name": "Series",
-    "contentType": "series",
-    "slugField": ":sys.id",
-    "plural": "Series",
-    "collection": {
-        "sort": "title"
-    },
-    "createPage": false
+  name: {
+    singular: 'Series',
+    plural: 'Series'
+  },
+  slug: {
+    singular: 'series',
+    plural: 'series'
+  },
+  contentfulId: 'series',
+  slugField: ':sys.id',
+  collection: {
+    sort: 'title',
+    reverse: false
+  },
+  createPage: false
 }

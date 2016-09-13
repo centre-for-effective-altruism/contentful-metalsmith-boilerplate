@@ -1,10 +1,18 @@
+// Schema for Pages
 module.exports = {
-    "name": "Page",
-    "contentType": "page",
-    "slugField": ":sys.id",
-    "plural": "Pages",
-    "collection": {
-        "sort": "title"
-    },
-    "createPage": true
+  name: {
+    singular: 'Page',
+    plural: 'Pages'
+  },
+  slug: {
+    singular: 'page',
+    plural: 'pages'
+  },
+  contentfulId: 'page',
+  slugField: ':sys.id',
+  collection: {
+    sort: 'title',
+    reverse: false
+  },
+  createPage: true
 }
