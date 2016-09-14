@@ -8,7 +8,6 @@ const validate = validation.validate
 const required = validation.required
 
 const chalk = require('chalk')
-const wordwrap = require('wordwrap')(64)
 const fs = Promise.promisifyAll(require('fs'))
 const path = require('path')
 
@@ -46,11 +45,11 @@ const questions = Object.keys(dotenvKeys).map((key) => ({
 }))
 
 function validateContentfulAPIKey (response) {
-  return (/^[a-f0-9]{64}$/).test(response) ? true : `Invalid Contentful API Key`
+  return (/^[a-f0-9]{64}$/).test(response) ? Promise.resolve(true) : Promise.reject(Error(`Invalid Contentful API Key`))
 }
 
 function validateContentfulSpaceID (response) {
-  return (/^[a-z0-9]{12}$/).test(response) ? true : `Invalid Contentful Space ID`
+  return (/^[a-z0-9]{12}$/).test(response) ? Promise.resolve(true) : Promise.reject(Error(`Invalid Contentful Space ID`))
 }
 
 // UI logic

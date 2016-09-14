@@ -3,26 +3,29 @@ const Promise = require('bluebird')
 
 const path = require('path')
 const fs = Promise.promisifyAll(require('fs'))
-const filePaths = require('../../lib/helpers/file-paths')
+const paths = require('../../lib/helpers/file-paths')
 
 const inquirer = require('inquirer')
 
 const console = require('better-console')
 const chalk = require('chalk')
-const tick = chalk.green('✓')
+const tick = require(paths.helpers('tick'))
 const submsgPrefix = '   > '
-const banner = require(path.join(filePaths.helpers, 'console-banner'))
+const banner = require(paths.helpers('console-banner'))
 
-const generateSchemaIndex = require(path.join(filePaths.helpers, 'generate-schema-index'))
+const generateSchemaIndex = require(paths.helpers('generate-schema-index'))
 
-// const yaml = require('js-yaml')
 const minimatch = require('minimatch')
 
 const contentful = new Contentful()
 let contentTypes
 
 function run () {
-  banner('Delete a Contentful Content Type', 'This utility allows you to delete Content Types from Contentful. Use with caution!')
+  banner(
+    { title: 'Delete a Contentful Content Type',
+      instructions: 'This utility allows you to delete Content Types from Contentful. Use with caution!',
+      color: 'yellow'
+    })
 
   return contentful.space((space) => {
     console.info('Getting existing Content Types')
@@ -33,7 +36,7 @@ function run () {
           console.warn('There are no Content Types in the space!')
           return Promise.resolve()
         }
-        // we've got content types, turn them into choices 
+        // we've got content types, turn them into choices
         const choices = contentTypes.map((contentType) => ({
           name: contentType.name,
           value: contentType.sys.id
@@ -114,7 +117,7 @@ function run () {
               // delete build files associated with each content type
               .then(() => Promise.all(
                 [
-                  path.join(filePaths.tasks, 'metalsmith', 'content-types')
+                  paths.tasks('metalsmith/content-types')
                 ]
                   .map((dir) => fs.readdirAsync(dir)
                     .then((fileNames) => fileNames.filter(minimatch.filter(`@(${answers.contentTypes.join('|')}).js`)).map((fileName) => path.join(dir, fileName)))
@@ -134,9 +137,10 @@ function run () {
             throw err
           })
       })
-      .catch((err) => {
-        throw err
-      })
+  })
+  .catch((err) => {
+    console.error(err)
+    throw err
   })
   // Utility function to get a content type's name from its ID
   function getContentTypeName (contentTypeId) {

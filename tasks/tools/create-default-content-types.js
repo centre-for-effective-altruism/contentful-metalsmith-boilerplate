@@ -2,13 +2,13 @@ const Promise = require('bluebird')
 
 const fs = Promise.promisifyAll(require('fs'))
 const path = require('path')
-const filePaths = require('../../lib/helpers/file-paths')
+const paths = require('../../lib/helpers/file-paths')
 
 const console = require('better-console')
 
 const chalk = require('chalk')
-const banner = require(path.join(filePaths.helpers, 'console-banner'))
-const contentfulFieldWarnings = require(path.join(filePaths.helpers, 'contentful-field-warnings'))
+const banner = require(paths.helpers('console-banner'))
+const contentfulFieldWarnings = require(paths.helpers('contentful-field-warnings'))
 
 const generate = require('./create-content-type').generate
 

@@ -1,20 +1,19 @@
 // create a new content type in Contenful with some opinionated defaults,
 // namely, with Title, Slug, and Body fields
-
+const console = require('better-console')
 const Contentful = require('contentful-content-management')
 const Promise = require('bluebird')
 
 const fs = Promise.promisifyAll(require('fs'))
-const path = require('path')
-const filePaths = require('../../lib/helpers/file-paths')
+const paths = require('../../lib/helpers/file-paths')
 
 const inquirer = require('inquirer')
-const validation = require(path.join(filePaths.helpers, 'inquirer-validation'))
+const validation = require(paths.helpers('inquirer-validation'))
 const validate = validation.validate
 const required = validation.required
 
-const slug = require('slug')
-slug.defaults.mode = 'rfc3986'
+const slug = require(paths.helpers('slug'))
+
 const capitalize = require('capitalize')
 const camelCase = require('camelcase')
 const trim = require('trim')
@@ -22,20 +21,16 @@ const pluralize = require('pluralize')
 
 const stringify = require('stringify-object')
 
-const generateSchemaIndex = require(path.join(filePaths.helpers, 'generate-schema-index'))
-const contentfulFieldWarnings = require(path.join(filePaths.helpers, 'contentful-field-warnings'))
+const generateSchemaIndex = require(paths.helpers('generate-schema-index'))
+const contentfulFieldWarnings = require(paths.helpers('contentful-field-warnings'))
 const wordwrap = require('wordwrap')(64)
 
-// const yaml = require('js-yaml')
-
-const console = require('better-console')
 const chalk = require('chalk')
-const tick = chalk.green('✓')
+const tick = paths.helpers('tick')
 const submsgPrefix = '   > '
-const banner = require(path.join(filePaths.helpers, 'console-banner'))
+const banner = require(paths.helpers('console-banner'))
 
-const defaultSchemaFilePath = path.join(filePaths.tools, 'content-type-schemas', 'default-schema.json')
-// const contentfulFilesFilePath = filePaths.metalsmithContentful
+const defaultSchemaFilePath = paths.tools('content-type-schemas/default-schema.json')
 
 const contentful = new Contentful()
 
@@ -101,6 +96,7 @@ function generate (contentTypeData) {
                 })
                 .catch((err) => {
                   console.warn(`Could not create Content Type ${chalk.cyan(data.name)}`)
+                  // remove the contentType reference from the main array so we don't postprocess it
                   try {
                     var errData = JSON.parse(err.message)
                     console.warn('Contentful returned the following error:')
@@ -111,12 +107,17 @@ function generate (contentTypeData) {
                     console.error(submsgPrefix, err.name)
                     console.error(submsgPrefix, err.message)
                   }
+                  data.error = err
                 })
             })
         })
         .then(() => Promise.all(contentTypeData.map((data) => Promise.resolve()
           // Postprocessing...
           .then(() => {
+            if (data.error) {
+              console.warn(`Not creating a schema for ${data.name}`)
+              return Promise.resolve()
+            }
             // create a schema with some details about the content type
             const contentTypeSchema = {
               name: {
@@ -141,7 +142,7 @@ function generate (contentTypeData) {
               }
             }
             const contentTypeSchemaFile = `// Schema for ${data.plural}\nmodule.exports = ${stringify(contentTypeSchema, {indent: '  '})}\n`
-            const ccontentTypeSchemaFilePath = path.join(filePaths.tasks, 'metalsmith', 'content-types', `${data.id}.js`)
+            const ccontentTypeSchemaFilePath = paths.tasks(`metalsmith/content-types/${data.id}.js`)
             return fs.writeFileAsync(ccontentTypeSchemaFilePath, contentTypeSchemaFile)
               .then(() => {
                 console.info(tick, `Created schema for ${chalk.cyan(data.plural)}`)
@@ -162,6 +163,7 @@ function generate (contentTypeData) {
           var first = true
           var delimiter = chalk.dim('--------')
           contentTypeData.forEach((data) => {
+            if (data.error) return
             if (data.contentfulFieldWarnings) {
               if (first) {
                 console.log(delimiter)
@@ -181,6 +183,9 @@ function generate (contentTypeData) {
         .catch((err) => {
           throw err
         })
+    })
+    .catch((err) => {
+      throw err
     })
 }
 
@@ -278,15 +283,11 @@ function run () {
 
   // validations for CLI
   function validName (response) {
-    return (/[A-Z][a-zA-Z\s]+/).test(response) ? true : 'Not a valid Name. Use only letters (A-z) and spaces'
-  }
-
-  function validID (response) {
-    return (/[a-zA-Z0-9\-_]+/).test(response) ? true : 'Not a valid ID. Use only letters, numbers, spaces, dashes and underscores'
+    return (/[A-Z][a-zA-Z\s]+/).test(response) ? Promise.resolve(true) : Promise.reject(Error('Not a valid Name. Use only letters (A-z) and spaces'))
   }
 
   function validInt (response) {
-    return Number.isInteger(response) && response >= 0 ? true : 'Enter a whole number greater than or equal to zero'
+    return Number.isInteger(response) && response >= 0 ? Promise.resolve(true) : Promise.reject(Error('Enter a whole number greater than or equal to zero'))
   }
 }
 

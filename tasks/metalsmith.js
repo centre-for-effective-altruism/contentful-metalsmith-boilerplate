@@ -1,8 +1,20 @@
-// start a timer
-let buildTime = process.hrtime()
-let buildTimeDiff = buildTime
+/**********************
+
+  Main build script
+
+**********************/
+
 // load environment variables
 require('dotenv').load({silent: true})
+// get path helpers
+const paths = require('../lib/helpers/file-paths')
+require(paths.helpers('console-banner'))({ title: 'Building the site using Metalsmith!', color: 'cyan' })
+
+// start a logger with a timer
+const LogMessage = require(paths.helpers('log-message'))
+const message = new LogMessage()
+const _message = message.plugin // metalsmith wrapper for message
+
 // process.env.NODE_ENV VARS - default to development
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 // cache require paths in development
@@ -11,39 +23,35 @@ if (process.env.NODE_ENV === 'development') {
   require('cache-require-paths')
 }
 
-// Start the build!
-const chalk = require('chalk')
-message('Generating the EA Global website!', chalk.cyan.inverse, true)
-message('Initialising new build...', chalk.dim, true)
+// Start requiring dependencies
+message.info('Loading dependencies...')
 // Metalsmith
 const Metalsmith = require('metalsmith')
+message.status('Loaded Metalsmith')
+// utilities
 const Promise = require('bluebird')
-message('Loaded Metalsmith')
+const ignore = require('metalsmith-ignore')
+const concat = require('metalsmith-concat')
+const branch = require('metalsmith-branch')
+message.status('Loaded utility plugins')
 // templating
-// const metadata = require('metalsmith-metadata')
-// const moment = require('moment')
-// const ignore      = require('metalsmith-ignore')
-// const contentful = require('contentful-metalsmith')
-// const slug = require('slug'); slug.defaults.mode = 'rfc3986'
-// const layouts  = require('metalsmith-layouts')
-// message('Loaded templating')
-// const lazysizes = require('metalsmith-lazysizes')
-// // metadata and structure
-// const branch  = require('metalsmith-branch')
-// const collections  = require('metalsmith-collections')
-// const excerpts = require('metalsmith-excerpts')
-// const pagination = require('metalsmith-pagination')
-// const navigation = require('metalsmith-navigation')
-// message('Loaded metadata')
-// // static file compilation
-// const parseHTML = require('../lib/parseHTML').parse
-// const shortcodes = require('metalsmith-shortcodes')
-// const concat = require('metalsmith-concat')
-// const icons = require('metalsmith-icons')
+const contentful = require('contentful-metalsmith')
+const layouts = require('metalsmith-layouts')
+const lazysizes = require('metalsmith-lazysizes')
+const shortcodes = require('metalsmith-shortcodes')
+const parseHtml = require(paths.lib('metalsmith/plugins/parse-html.js')).plugin
+message.status('Loaded templating plugins')
+// metadata and structure
+const metadata = require('metalsmith-metadata')
+const collections = require('metalsmith-collections')
+const excerpts = require('metalsmith-excerpts')
+const pagination = require('metalsmith-pagination')
+const navigation = require('metalsmith-navigation')
+message.status('Loaded metadata plugins')
+// static file compilation
+const icons = require('metalsmith-icons')
+message.status('Loaded metadata plugins')
 
-// // const feed = require('metalsmith-feed')
-// // const headingsIdentifier = require('metalsmith-headings-identifier')
-// // const headings = require('metalsmith-headings')
 // const striptags = require('striptags')
 // const htmlEntities = require('html-entities').Html5Entities
 // // templating utility functions
@@ -72,13 +80,6 @@ message('Loaded Metalsmith')
 // }
 // const jsFiles = {}
 // message('Loaded static file compilation')
-
-// // only require in development
-// /*if(process.env.NODE_ENV==='development'){
-//     const watch = require('glob-watcher')
-//     const nodeStatic = require('node-static')
-//     message('Loaded dev modules')
-// }*/
 
 // // only require in production
 // if(process.env.NODE_ENV==='staging' || process.env.NODE_ENV==='production'){
@@ -153,9 +154,9 @@ function build (buildCount) {
     // START THE BUILD!
     const colophonemes = new Metalsmith(__dirname)
     colophonemes
-      .use(logMessage('NODE_ENV: ' + process.env.NODE_ENV, chalk.dim, true))
-      .use(logMessage('NODE VERSION: ' + process.version, chalk.dim, true))
-      .use(logMessage('BUILD TIMESTAMP: ' + moment().format('YYYY-MM-DD @ H:m'), chalk.dim, true))
+      .use(_message.info('NODE_ENV: ' + process.env.NODE_ENV, chalk.dim, true))
+      .use(_message.info('NODE VERSION: ' + process.version, chalk.dim, true))
+      .use(_message.info('BUILD TIMESTAMP: ' + moment().format('YYYY-MM-DD @ H:m'), chalk.dim, true))
       .source('../src/metalsmith')
       .destination('../build')
       .use(ignore([
@@ -192,7 +193,7 @@ function build (buildCount) {
         })
         done()
       })
-      .use(logMessage('Prepared global metadata'))
+      .use(_message.info('Prepared global metadata'))
       .use(contentful({
         'accessToken': process.env.CONTENTFUL_ACCESS_TOKEN
       }))
@@ -203,7 +204,7 @@ function build (buildCount) {
         })
         done()
       })
-      .use(logMessage('Downloaded content from Contentful'))
+      .use(_message.info('Downloaded content from Contentful'))
       .use(function (files, metalsmith, done) {
         // move the contentful 'fields' metadata to the file's global meta
         Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function (file) {
@@ -241,7 +242,7 @@ function build (buildCount) {
 
         done()
       })
-      .use(logMessage('Processed Contentful metadata'))
+      .use(_message.info('Processed Contentful metadata'))
       .use(collections({
         pages: {
           pattern: 'pages/**/index.html',
@@ -335,7 +336,7 @@ function build (buildCount) {
           }
         }
       }))
-      .use(logMessage('Added files to collections'))
+      .use(_message.info('Added files to collections'))
       .use(pagination({
         'collections.talks': {
           perPage: 20,
@@ -442,7 +443,7 @@ function build (buildCount) {
         delete files['organize-eagx/index.html']
         done()
       })
-      .use(logMessage('Moved files into place'))
+      .use(_message.info('Moved files into place'))
       // .use(function (files,metalsmith,done){
       //     console.log(Object.keys(files))
       // })
@@ -464,7 +465,7 @@ function build (buildCount) {
           permalinks: true
         }))
     )
-      .use(logMessage('Added navigation metadata'))
+      .use(_message.info('Added navigation metadata'))
       .use(function (files, metalsmith, done) {
         const dynamicSiteRedirects = files['settings/_redirects'].contents.toString().split('\n').sort()
         // build a list of redirects from file meta
@@ -492,7 +493,7 @@ function build (buildCount) {
         files._redirects = {contents: redirectsFile.join('\n')}
         done()
       })
-      .use(logMessage('Calculated redirects'))
+      .use(_message.info('Calculated redirects'))
       // parse 'series' hierarchy to use file objects from the build
       .use(function (files, metalsmith, done) {
         // create a lookup table of contentful data IDs and metalsmith files
@@ -552,7 +553,7 @@ function build (buildCount) {
         metalsmith.metadata().seriesSet = series
         done()
       })
-      .use(logMessage('Built series hierarchy'))
+      .use(_message.info('Built series hierarchy'))
 
       // .use(function (files, metalsmith, done) {
       //     const talks = metalsmith.metadata().collections['talks']
@@ -560,7 +561,7 @@ function build (buildCount) {
       //         console.log(talk.tags)
       //     })
       // })
-      // .use(logMessage('Calculated related talks'))
+      // .use(_message.info('Calculated related talks'))
       // Build HTML files
       .use(function (files, metalsmith, done) {
         // parse HTML files
@@ -576,7 +577,7 @@ function build (buildCount) {
         done()
       })
       .use(excerpts())
-      .use(logMessage('Converted Markdown to HTML'))
+      .use(_message.info('Converted Markdown to HTML'))
       .use(function (files, metalsmith, done) {
         // certain content has been incorporated into other pages, but we don't need them as standalone pages in our final build.
         Object.keys(files).filter(minimatch.filter('@(series|links)/**')).forEach(function (file) {
@@ -585,7 +586,7 @@ function build (buildCount) {
         done()
       })
       .use(shortcodes(shortcodeOpts))
-      .use(logMessage('Converted Shortcodes'))
+      .use(_message.info('Converted Shortcodes'))
       .use(function (files, metalsmith, done) {
         // serialize all talks/speakers/tags into a searchable object
         const meta = metalsmith.metadata()
@@ -615,7 +616,7 @@ function build (buildCount) {
           }))
         done()
       })
-      .use(logMessage('Built search index'))
+      .use(_message.info('Built search index'))
       .use(function (files, metalsmith, done) {
         // copy 'template' key to 'layout' key
         Object.keys(files).filter(minimatch.filter('{**/index.html,404.html}')).forEach(function (file) {
@@ -652,12 +653,12 @@ function build (buildCount) {
         contentfulImage,
         environment: process.env.NODE_ENV
       }))
-      .use(logMessage('Built HTML files from templates'))
+      .use(_message.info('Built HTML files from templates'))
       .use(icons({
         fontDir: 'fonts',
         customIcons: 'fonts/glyphs.json'
       }))
-      .use(logMessage('Added icon fonts'))
+      .use(_message.info('Added icon fonts'))
       .use(lazysizes({
         widths: [100, 480, 768, 992, 1200, 1800],
         qualities: [ 50, 70, 70, 70, 70, 70],
@@ -669,17 +670,17 @@ function build (buildCount) {
           q: '%%quality%%'
         }
       }))
-      .use(logMessage('Added responsive image markup'))
+      .use(_message.info('Added responsive image markup'))
 
     // stuff to only do in production
     if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
       colophonemes
-        .use(logMessage('Minifying HTML', chalk.dim))
+        .use(_message.info('Minifying HTML', chalk.dim))
         .use(htmlMinifier('**/*.html', {
           minifyJS: true
         }))
-        .use(logMessage('Minified HTML'))
-        .use(logMessage('Cleaning CSS', chalk.dim))
+        .use(_message.info('Minified HTML'))
+        .use(_message.info('Cleaning CSS', chalk.dim))
         .use(function purifyCss (files, metalsmith, done) {
           const cssFile = 'styles/app.min.css'
           const whitelist = []
@@ -694,7 +695,7 @@ function build (buildCount) {
           files[cssFile].contents = new Buffer(purifiedCSS)
           done()
         })
-        .use(logMessage('Cleaned CSS files'))
+        .use(_message.info('Cleaned CSS files'))
         // concat main CSS and icon CSS together and put back in the right place
         .use(concat({
           files: ['styles/app.min.css', 'styles/icons.css'],
@@ -702,7 +703,7 @@ function build (buildCount) {
           keepConcatenated: false,
           forceOutput: true
         }))
-        .use(logMessage('Concatenated CSS files'))
+        .use(_message.info('Concatenated CSS files'))
         .use(cleanCSS({
           cleanCSS: {
             rebase: false
@@ -722,11 +723,11 @@ function build (buildCount) {
           omitIndex: true,
           modified: 'data.sys.updatedAt'
         }))
-        .use(logMessage('Built sitemap'))
+        .use(_message.info('Built sitemap'))
     }
 
     // Run build
-    colophonemes.use(logMessage('Finalising build')).build(function (err, files) {
+    colophonemes.use(_message.info('Finalising build')).build(function (err, files) {
       const t = formatBuildTime(buildTime)
       if (err) {
         message('Build failed!', chalk.red.bold)
@@ -760,58 +761,4 @@ function build (buildCount) {
       }
     })
   }
-}
-// call master build function
-
-// // DEVELOPMENT RELOADING
-// based on example at https://www.npmjs.com/package/metalsmith-changed
-/*if(process.env.NODE_ENV === 'development'){
-    // server
-    const serve = new nodeStatic.Server(path.join(__dirname,'..','build'))
-    require('http').createServer((req, res) => {
-      req.addListener('end', () => serve.serve(req, res))
-      req.resume()
-    }).listen(8080)
-     // watch files
-     message('Watching files')
-    watch([
-        path.join(__dirname,'..','src','metalsmith','contentful'),
-        path.join(__dirname,'..','src','metalsmith','fonts'),
-        path.join(__dirname,'..','src','metalsmith','images'),
-        path.join(__dirname,'..','src','metalsmith','settings'),
-    ], {ignoreInitial: false}, build(2));   
-} else {
-    build()()
-}*/
-
-// UTILITIES //
-
-// SEND CONSOLE MESSAGES
-function message (m, c, t) {
-  c = c || chalk.yellow.bold
-  t = t || false
-  let output = c(m)
-  if (!t) {
-    output += '................................................'.substr(m.length)
-    output += chalk.dim('(+' + formatBuildTimeDiff() + ' / ' + formatBuildTime() + ')')
-  }
-  console.log('-', output)
-}
-function logMessage (m, c, t) {
-  c = c || chalk.bold.blue
-  return function (files, metalsmith, done) {
-    message(m, c, t)
-    done()
-  }
-}
-// FORMAT BUILD TIMER INTO Mins : secs . milliseconds
-function formatBuildTime (hrTimeObj) {
-  hrTimeObj = hrTimeObj || buildTime
-  const t = process.hrtime(hrTimeObj)
-  return (t[0] + (t[1] / 10e+9)).toFixed(3) + 's'
-}
-function formatBuildTimeDiff () {
-  const t = buildTimeDiff
-  buildTimeDiff = process.hrtime()
-  return formatBuildTime(t)
 }

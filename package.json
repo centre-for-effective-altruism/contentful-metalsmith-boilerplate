@@ -90,6 +90,7 @@
     "node-notifier": "^4.6.0",
     "node-sass": "^3.8.0",
     "numeral": "^1.5.3",
+    "pad-number": "0.0.4",
     "pluralize": "^3.0.0",
     "pug": "^2.0.0-beta4",
     "pugify": "^1.0.5",
