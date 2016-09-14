@@ -29,17 +29,27 @@ message.info('Loading dependencies...')
 const Metalsmith = require('metalsmith')
 message.status('Loaded Metalsmith')
 // utilities
+const contentful = require('contentful-metalsmith')
 const Promise = require('bluebird')
 const ignore = require('metalsmith-ignore')
 const concat = require('metalsmith-concat')
 const branch = require('metalsmith-branch')
 message.status('Loaded utility plugins')
+// Markdown processing
+const MarkdownIt = require('metalsmith-markdownit')
+const markdown = MarkdownIt()
+const MarkdownItAttrs = require('markdown-it-attrs')
+markdown.use(MarkdownItAttrs)
+const htmlPostprocessing = require(paths.lib('metalsmith/plugins/html-postprocessing'))
+message.status('Loaded Markdown/HTML parsing plugins')
 // templating
-const contentful = require('contentful-metalsmith')
 const layouts = require('metalsmith-layouts')
+const shortcodes = require('metalsmith-shortcodes')
+
+const sanitizeShortcodes = require(paths.lib('metalsmith/plugins/sanitize-shortcodes.js'))
 const lazysizes = require('metalsmith-lazysizes')
 const shortcodes = require('metalsmith-shortcodes')
-const parseHtml = require(paths.lib('metalsmith/plugins/parse-html.js')).plugin
+
 message.status('Loaded templating plugins')
 // metadata and structure
 const metadata = require('metalsmith-metadata')

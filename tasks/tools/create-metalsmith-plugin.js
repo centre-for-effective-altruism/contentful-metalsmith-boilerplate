@@ -37,24 +37,27 @@ function run () {
       const plugin = {
         name: answers.name,
         description: capitalize.words(answers.description),
-        fileName: `${slug(answers.name)}.js`,
+        fileName: `${slug(answers.name)}`,
         functionName: camelCase(answers.name)
       }
 
       const pluginFile = [
         `// ${plugin.name} - ${plugin.description}`,
         `const minimatch = require('minimatch')`,
-        `const debug = require('debug')(${plugin.fileName})  // DEBUG=${plugin.fileName}`,
+        `const debug = require('debug')('${plugin.fileName}')  // DEBUG=${plugin.fileName}`,
         ``,
         `function ${plugin.functionName}Plugin (opts) {`,
         `  const defaults = {`,
         `    // set some default options here`,
-        `    pattern: '**/*.html'`,
+        `    filter: '**/*.html'`,
         `  }`,
         `  const options = Object.assign(defaults, opts)`,
+        `  // filter param can either be a glob string (passed to minimatch.filter) or a function suitable for Array.filter()`,
+        `  const filter = typeof options.filter === 'string' ? minimatch.filter(options.filter) : filter`,
+        `  // main plugin returned to Metalsmith`,
         `  return function ${plugin.functionName} (files, metalsmith, done) {`,
         `    // plugin code goes here`,
-        `    Object.keys(files).filter(minimatch.filter(options.pattern)).forEach((file) => {`,
+        `    Object.keys(files).filter(filter).forEach((file) => {`,
         `      // loop through a filtered subset of files...`,
         `    })`,
         `    // tell Metalsmith that we're done`,
@@ -64,11 +67,11 @@ function run () {
         ``,
         `module.exports = ${plugin.functionName}Plugin`,
         `// require this plugin in ./tasks/metalsmith using:`,
-        `// const ${plugin.functionName} = require(paths.lib('metalsmith/plugins/${plugin.fileName}'))`,
+        `// const ${plugin.functionName} = require(paths.lib('metalsmith/plugins/${plugin.fileName}.js'))`,
         ``
       ].join('\n')
 
-      const filePath = paths.lib(`metalsmith/plugins/${plugin.fileName}`)
+      const filePath = paths.lib(`metalsmith/plugins/${plugin.fileName}.js`)
 
       return fs.writeFileAsync(filePath, pluginFile)
         .then(() => {
