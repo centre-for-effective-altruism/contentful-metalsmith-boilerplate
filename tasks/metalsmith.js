@@ -6,20 +6,23 @@
 
 // load environment variables
 require('dotenv').load({silent: true})
+var console = require('better-console')
 // get path helpers
 const paths = require('../lib/helpers/file-paths')
 require(paths.helpers('console-banner'))({ title: 'Building the site using Metalsmith!', color: 'cyan' })
-
 // start a logger with a timer
 const LogMessage = require(paths.helpers('log-message'))
 const message = new LogMessage()
 const _message = message.plugin // metalsmith wrapper for message
 
-// process.env.NODE_ENV VARS - default to development
+console.info(`NODE_ENV: ${process.env.NODE_ENV}`)
+console.info(`NODE VERSION: ${process.version}`)
+console.info(`BUILD TIMESTAMP: ${message.timestamp}`)
+
+// default process.env.NODE_ENV to development
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 // cache require paths in development
 if (process.env.NODE_ENV === 'development') {
-  // require('time-require')
   require('cache-require-paths')
 }
 
@@ -30,7 +33,7 @@ const Metalsmith = require('metalsmith')
 message.status('Loaded Metalsmith')
 // utilities
 const contentful = require('contentful-metalsmith')
-const Promise = require('bluebird')
+const injectContentfulFiles = require(paths.lib('metalsmith/plugins/inject-contentful-files'))
 const ignore = require('metalsmith-ignore')
 const concat = require('metalsmith-concat')
 const branch = require('metalsmith-branch')
@@ -41,168 +44,75 @@ const markdown = MarkdownIt()
 const MarkdownItAttrs = require('markdown-it-attrs')
 markdown.use(MarkdownItAttrs)
 const htmlPostprocessing = require(paths.lib('metalsmith/plugins/html-postprocessing'))
+const sanitizeShortcodes = require(paths.lib('metalsmith/plugins/sanitize-shortcodes.js'))
 message.status('Loaded Markdown/HTML parsing plugins')
 // templating
 const layouts = require('metalsmith-layouts')
 const shortcodes = require('metalsmith-shortcodes')
-
-const sanitizeShortcodes = require(paths.lib('metalsmith/plugins/sanitize-shortcodes.js'))
-const lazysizes = require('metalsmith-lazysizes')
 const shortcodes = require('metalsmith-shortcodes')
-
+const lazysizes = require('metalsmith-lazysizes')
+const icons = require('metalsmith-icons')
 message.status('Loaded templating plugins')
+// methods to inject into layouts / shortcodes
+const layoutUtils = {
+  typogr: require('typogr'),
+  truncate: require('truncate'),
+  url: require('url'),
+  moment: require('moment'),
+  slugify: require('slug'),
+  strip: require(paths.helpers('strip-tags')),
+  contentfulImage: require(paths.helpers('contentful-image')),
+  environment: process.env.NODE_ENV
+}
+
+const shortcodeOpts = Object.assign({
+  directory: paths.templates('shortcodes'),
+  pattern: '**/*.html',
+  engine: 'pug',
+  extension: '.pug'
+}, layoutUtils)
+message.status('Loaded templating utilities')
 // metadata and structure
-const metadata = require('metalsmith-metadata')
+const injectSiteMetadata = require(paths.lib('metalsmith/plugins/inject-site-metadata'))
+const contentTypes = require('../lib/metalsmith/helpers/content-types')
 const collections = require('metalsmith-collections')
 const excerpts = require('metalsmith-excerpts')
 const pagination = require('metalsmith-pagination')
 const navigation = require('metalsmith-navigation')
 message.status('Loaded metadata plugins')
-// static file compilation
-const icons = require('metalsmith-icons')
-message.status('Loaded metadata plugins')
 
-// const striptags = require('striptags')
-// const htmlEntities = require('html-entities').Html5Entities
-// // templating utility functions
-// const strip = function (input){
-//     // strip out HTML & decode entities for using HTML in Jade attributes
-//     function subs(input){
-//             const substitutions = [
-//                 ['&#xA0;',' '],['&nbsp;', ' ']
-//             ]
-//             const i = striptags(input)
-//             substitutions.forEach(function(substitution){
-//                 i = i.replace(substitution[0],substitution[1])
-//             })
-//             return i
+// only require in production
+if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
+  const htmlMinifier = require('metalsmith-html-minifier')
+  const purifyCSS = require(paths.lib('metalsmith/plugins/purifycss.js'))
+  const cleanCSS = require('metalsmith-clean-css')
+  const sitemap = require('metalsmith-sitemap')
+  message.status('Loaded production modules')
+}
+// utility
+const NotificationCenter = require('node-notifier').NotificationCenter
+const notifier = new NotificationCenter()
+// utility global const to hold 'site' info from our settings file, for reuse in other plugins
+const site = require(paths.helpers('site-information'))
 
-//     }
-//     return htmlEntities.decode(subs(input))
-
-// }
-// const contentfulImage = function(image,query){
-//     const src = url.parse(image.fields.file.url,true)
-//     if (src.search) delete src.search
-//     src.query = Object.assign({},src.query,query)
-//     src.protocol = 'https'
-//     return src.format()
-// }
-// const jsFiles = {}
-// message('Loaded static file compilation')
-
-// // only require in production
-// if(process.env.NODE_ENV==='staging' || process.env.NODE_ENV==='production'){
-//     const htmlMinifier = require('metalsmith-html-minifier')
-//     const purifyCSS = require('purify-css')
-//     const cleanCSS = require('metalsmith-clean-css')
-//     const sitemap = require('metalsmith-sitemap')
-//     message('Loaded production modules')
-// }
-// // utility
-// const fs = require('fs')
-// const path = require('path')
-// const merge = require('merge')
-// const typogr = require('typogr')
-// const minimatch = require('minimatch')
-// const url = require('url')
-// const truncate = require('truncate')
-// const NotificationCenter = require('node-notifier').NotificationCenter
-// const notifier = new NotificationCenter()
-// // utility global const to hold 'site' info from our settings file, for reuse in other plugins
-// const site = JSON.parse(fs.readFileSync(path.join(__dirname,'../src/metalsmith/settings/site.json' )).toString())
-// site.url = site.protocol + site.domain
-// message('Loaded utilities...')
-// message('All dependencies loaded!',chalk.cyan)
-
-// start things happening...
-Promise.resolve()
-  .then(() => {
-    // get information about all our content types (contentful data, collections, pagination etc)
-    return require('../lib/metalsmith/helpers/content-types')()
-  })
-  .then((contentTypes) => {
-    const inspect = require('util').inspect
-    console.log(inspect(contentTypes))
-    console.log('Build here!')
-  // build()()
-  })
+message.status('Loaded utilities...')
+message.success('All dependencies loaded!')
 
 // call the master build function
-// build(true)
 function build (buildCount) {
+  buildCount = buildCount || 1
+  if (buildCount > 1) message.start() // reset the timer
   return function (done) {
-    buildCount = buildCount || 1
-    if (buildCount > 1) {
-      buildTime = process.hrtime()
-      buildTimeDiff = buildTime
-    }
-
-    // hostnames where we should trigger an embed instead of a straight link
-    const embedHostnames = [
-      'youtube.com',
-      'www.youtube.com',
-      'youtu.be',
-      'vimeo.com'
-    ]
-
-    // shortcodes is used twice so abstract the options object
-    const shortcodeOpts = {
-      directory: path.normalize(__dirname + '/../src/templates/shortcodes'),
-      pattern: '**/*.html',
-      engine: 'pug',
-      extension: '.pug',
-      cache: true,
-      url,
-      truncate,
-      typogr,
-      slugify: slug,
-      moment,
-      embedHostnames,
-    contentfulImage}
-
     // START THE BUILD!
-    const colophonemes = new Metalsmith(__dirname)
-    colophonemes
-      .use(_message.info('NODE_ENV: ' + process.env.NODE_ENV, chalk.dim, true))
-      .use(_message.info('NODE VERSION: ' + process.version, chalk.dim, true))
-      .use(_message.info('BUILD TIMESTAMP: ' + moment().format('YYYY-MM-DD @ H:m'), chalk.dim, true))
+    const metalsmith = new Metalsmith(__dirname)
+    metalsmith
       .source('../src/metalsmith')
       .destination('../build')
       .use(ignore([
         '**/.DS_Store'
       ]))
-
-    // Set up some metadata
-    colophonemes.use(metadata({
-      'site': 'settings/site.json'
-    }))
-      .use(function (files, metalsmith, done) {
-        // build a full domain from our settings
-        const meta = metalsmith.metadata()
-        if (process.env.NODE_ENV === 'staging') {
-          meta.site.domain = meta.site.domain.replace('www', 'staging')
-        }
-        meta.site.url = meta.site.protocol + meta.site.domain
-        done()
-      })
-      .use(function (files, metalsmith, done) {
-        // add defaults to all our contentful source files
-        /*eslint-disable */
-        const defaults = {
-          space_id: process.env.CONTENTFUL_SPACE,
-          limit: 2000,
-          permalink_style: true
-        }
-        /*eslint-enable */
-        Object.keys(files).filter(minimatch.filter('**/*.contentful')).forEach(function (file) {
-          if (!files[file].contentful) {
-            throw new Error('File ' + file + ' should have a `contenful` meta key')
-          }
-          files[file].contentful = merge(true, defaults, files[file].contentful)
-        })
-        done()
-      })
+      .use(injectSiteMetadata)
+      .use(injectContentfulFiles(contentTypes.contentful))
       .use(_message.info('Prepared global metadata'))
       .use(contentful({
         'accessToken': process.env.CONTENTFUL_ACCESS_TOKEN
@@ -645,24 +555,12 @@ function build (buildCount) {
         })
         done()
       })
-      .use(layouts({
+      .use(layouts(Object.assign({
         engine: 'pug',
-        directory: '../src/templates',
-        pretty: process.env.NODE_ENV === 'development' ? true : false,
-        cache: true,
-        typogr,
-        truncate,
-        url,
-        moment,
-        strip,
-        jsFiles,
-        slugify: slug,
-        // collectionSlugs,
-        // collectionInfo,
-        embedHostnames,
-        contentfulImage,
-        environment: process.env.NODE_ENV
-      }))
+        directory: paths.layouts(),
+        pretty: process.env.NODE_ENV === 'development',
+        cache: true
+      }, layoutUtils)))
       .use(_message.info('Built HTML files from templates'))
       .use(icons({
         fontDir: 'fonts',
@@ -684,27 +582,14 @@ function build (buildCount) {
 
     // stuff to only do in production
     if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
-      colophonemes
+      metalsmith
         .use(_message.info('Minifying HTML', chalk.dim))
         .use(htmlMinifier('**/*.html', {
           minifyJS: true
         }))
         .use(_message.info('Minified HTML'))
         .use(_message.info('Cleaning CSS', chalk.dim))
-        .use(function purifyCss (files, metalsmith, done) {
-          const cssFile = 'styles/app.min.css'
-          const whitelist = []
-          const html = []
-          Object.keys(files).filter(minimatch.filter('**/*.@(html|js)')).forEach(function (file) {
-            html.push(files[file].contents.toString())
-          })
-          html = html.join('\n')
-          const purifiedCSS = purifyCSS(html, files[cssFile].contents.toString(), {
-            whitelist: whitelist
-          })
-          files[cssFile].contents = new Buffer(purifiedCSS)
-          done()
-        })
+        .use(purifyCSS)
         .use(_message.info('Cleaned CSS files'))
         // concat main CSS and icon CSS together and put back in the right place
         .use(concat({
@@ -737,7 +622,7 @@ function build (buildCount) {
     }
 
     // Run build
-    colophonemes.use(_message.info('Finalising build')).build(function (err, files) {
+    metalsmith.use(_message.info('Finalising build')).build(function (err, files) {
       const t = formatBuildTime(buildTime)
       if (err) {
         message('Build failed!', chalk.red.bold)
