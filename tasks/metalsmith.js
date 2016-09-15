@@ -45,14 +45,16 @@ const MarkdownItAttrs = require('markdown-it-attrs')
 markdown.use(MarkdownItAttrs)
 const htmlPostprocessing = require(paths.lib('metalsmith/plugins/html-postprocessing'))
 const sanitizeShortcodes = require(paths.lib('metalsmith/plugins/sanitize-shortcodes.js'))
+const saveRawContents = require(paths.lib('metalsmith/plugins/save-raw-contents'))
 message.status('Loaded Markdown/HTML parsing plugins')
-// templating
+// layouts
 const layouts = require('metalsmith-layouts')
+const remapLayoutNames = require(paths.lib('metalsmith/plugins/remap-layout-names'))
 const shortcodes = require('metalsmith-shortcodes')
 const shortcodes = require('metalsmith-shortcodes')
 const lazysizes = require('metalsmith-lazysizes')
 const icons = require('metalsmith-icons')
-message.status('Loaded templating plugins')
+message.status('Loaded layout plugins')
 // methods to inject into layouts / shortcodes
 const layoutUtils = {
   typogr: require('typogr'),
@@ -74,11 +76,18 @@ const shortcodeOpts = Object.assign({
 message.status('Loaded templating utilities')
 // metadata and structure
 const injectSiteMetadata = require(paths.lib('metalsmith/plugins/inject-site-metadata'))
+const processContentfulMetadata = require(paths.lib('metalsmith/plugins/process-contentful-metadata'))
 const contentTypes = require('../lib/metalsmith/helpers/content-types')
 const collections = require('metalsmith-collections')
+const checkSlugs = require(paths.lib('metalsmith/plugins/check-slugs.js'))
 const excerpts = require('metalsmith-excerpts')
 const pagination = require('metalsmith-pagination')
 const navigation = require('metalsmith-navigation')
+const create404 = require(paths.lib('metalsmith/plugins/create-404.js'))
+const rebase = require(paths.lib('metalsmith/plugins/rebase'))
+const addPaths = require(paths.lib('metalsmith/plugins/add-paths.js'))
+const createContentfulFileIdMap = require(paths.lib('metalsmith/plugins/create-contentful-file-id-map.js'))
+const createSeriesHierarchy = require(paths.lib('metalsmith/plugins/create-series-hierarchy.js'))
 message.status('Loaded metadata plugins')
 
 // only require in production
@@ -125,256 +134,30 @@ function build (buildCount) {
         done()
       })
       .use(_message.info('Downloaded content from Contentful'))
-      .use(function (files, metalsmith, done) {
-        // move the contentful 'fields' metadata to the file's global meta
-        Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function (file) {
-          const meta = files[file]
-          // make sure we have contentful data
-          if (!meta.data || !meta.data.fields) {
-            return
-          }
-          // add all the 'data' fields to the global meta
-          Object.keys(meta.data.fields).forEach(function (key) {
-            // 'body' and 'bio' are used as main content fields, so add them to the 'contents' key
-            if (['body', 'bio'].indexOf(key) > -1) {
-              meta.contents = meta.data.fields[key] || ''
-            } else {
-              meta[key] = meta.data.fields[key]
-            }
-          })
-          // add date information to the post
-          meta.date = meta.date || meta.data.sys.createdAt
-          meta.updated = meta.updated || meta.data.sys.updatedAt
-          meta.contents = meta.contents && meta.contents.length > 0 ? meta.contents : ''
-
-          // remap 'layout' key from text string to filename
-          const layoutSubstitutions = {
-            'Basic Page': 'page.pug',
-            'Page with Table of Contents': 'page-with-toc.pug',
-            'Home Page': 'home.pug',
-            'Basic Article': 'article.pug',
-            'Article with Table of Contents': 'article-with-toc.pug'
-          }
-          if (meta.layout && Object.keys(layoutSubstitutions).indexOf(meta.layout) > -1) {
-            meta.layout = layoutSubstitutions[meta.layout]
-          }
-        })
-
-        done()
-      })
+      .use(processContentfulMetadata)
+      .use(remapLayoutNames)
       .use(_message.info('Processed Contentful metadata'))
-      .use(collections({
-        pages: {
-          pattern: 'pages/**/index.html',
-          sortBy: 'menuOrder',
-          metadata: {
-            singular: 'page'
-          }
-        },
-        series: {
-          pattern: 'series/**/index.html',
-          sortBy: 'title',
-          metadata: {
-            singular: 'series'
-          }
-        },
-        speakers: {
-          pattern: 'speakers/**/index.html',
-          sortBy: 'title',
-          metadata: {
-            singular: 'speaker'
-          }
-        },
-        'events': {
-          pattern: 'events/**/index.html',
-          sortBy: function (a, b) {
-            // handle missing start dates
-            if (!a.startDate && !b.startDate) {
-              // push EAGs over EAGXs
-              if (slug(a.eventType) === 'eagx' && slug(b.eventType) !== 'eagx') return 1
-              if (slug(a.eventType) !== 'eagx' && slug(b.eventType) === 'eagx') return -1
-              // if we have no information, sort by the last time the event was edited
-              return moment(a.updated).isAfter(b.updated) ? -1 : 1
-            }
-            if (!a.startDate && b.startDate) {
-              // sort up relative to a past event
-              if (moment(b.startDate).isBefore(moment(), 'day')) return 1
-              // sort down relative to an upcoming event
-              if (moment(b.startDate).isSameOrAfter(moment(), 'day')) return -1
-            }
-            if (a.startDate && !b.startDate) {
-              // sort down relative to a past event
-              if (moment(a.startDate).isBefore(moment(), 'day')) return -1
-              // sort up relative to an upcoming event
-              if (moment(a.startDate).isSameOrAfter(moment(), 'day')) return 1
-            }
-            // otherwise, sort by start date
-            if (moment(a.startDate).isBefore(moment(b.startDate), 'day')) return 1
-            if (moment(a.startDate).isAfter(moment(b.startDate), 'day')) return -1
-            if (moment(a.startDate).isSame(moment(b.startDate), 'day')) return 0
-            return 0
-          },
-          metadata: {
-            singular: 'event'
-          }
-        },
-        talks: {
-          pattern: 'talks/**/index.html',
-          sortBy: function (a, b) {
-            if (moment(a.event.fields.startDate).isBefore(moment(b.event.fields.startDate), 'day')) return 1
-            if (moment(a.event.fields.startDate).isAfter(moment(b.event.fields.startDate), 'day')) return -1
-            // presumably the same event
-            if (moment(a.event.fields.startDate).isSame(moment(b.event.fields.startDate), 'day')) {
-              // featured events to the front
-              if (a.isFeatured && !b.isFeatured) return -1
-              if (!a.isFeatured && b.isFeatured) return 1
-              if (a.isFeatured === b.isFeatured) {
-                // otherwise sort on view count
-                if (a.viewCount > b.viewCount) return -1
-                if (a.viewCount < b.viewCount) return 1
-              }
-            }
-            return 0
-          },
-          metadata: {
-            singular: 'talk'
-          }
-        },
-        galleries: {
-          pattern: 'galleries/*/index.html',
-          sortBy: '',
-          reverse: true,
-          metadata: {
-            singular: 'gallery'
-          }
-        },
-        tags: {
-          pattern: 'tags/**/index.html',
-          sortBy: 'title',
-          metadata: {
-            singular: 'tag'
-          }
-        }
-      }))
+      .use(collections(contentTypes.collections))
+      .use(pagination(contentTypes.pagination))
       .use(_message.info('Added files to collections'))
-      .use(pagination({
-        'collections.talks': {
-          perPage: 20,
-          template: 'collection.pug',
-          first: 'talks/index.html',
-          path: 'talks/:num/index.html',
-          pageMetadata: {
-            title: 'Talks',
-            slug: 'talks',
-            contentType: 'talk',
-            collectionSlug: 'collection'
-          }
+      .use(checkSlugs)
+      .use(create404)
+      .use(rebase([
+        {
+          pattern: 'pages/**/*.index.html',
+          rebase: ['pages', '']
         },
-        'collections.events': {
-          perPage: 20,
-          template: 'collection.pug',
-          first: 'events/index.html',
-          path: 'events/:num/index.html',
-          pageMetadata: {
-            title: 'Events',
-            slug: 'events',
-            contentType: 'event',
-            collectionSlug: 'collection'
-          }
+        {
+          pattern: 'home/index.html',
+          rebase: ['home', '']
         },
-        'collections.speakers': {
-          perPage: 20,
-          template: 'collection.pug',
-          first: 'speakers/index.html',
-          path: 'speakers/:num/index.html',
-          pageMetadata: {
-            title: 'Speakers',
-            slug: 'speakers',
-            contentType: 'speaker',
-            collectionSlug: 'collection'
-          }
-        },
-        'collections.tags': {
-          perPage: 1000,
-          template: 'collection.pug',
-          first: 'tags/index.html',
-          path: 'tags/:num/index.html',
-          pageMetadata: {
-            title: 'Tags',
-            slug: 'tags',
-            contentType: 'tag',
-            collectionSlug: 'collection'
-          }
+        {
+          pattern: 'images/favicons/**',  // move favicons to root directory
+          rebase: (file) => file.split('/').pop()
         }
-      }))
-      .use(function (files, metalsmith, done) {
-        // check all of our HTML files have slugs
-        Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function (file) {
-          const meta = files[file]
-          // add a slug
-          if (!meta.slug) {
-            if (meta.title) {
-              meta.slug = slug(meta.title)
-            }
-            else if (meta.name) {
-              meta.slug = slug(meta.name)
-            } else {
-              throw new Error('Could not set slug for file ' + file)
-            }
-          }
-        })
-        done()
-      })
-      .use(function (files, metalsmith, done) {
-        // move pages from /pages/ into site root
-        Object.keys(files).filter(minimatch.filter('pages/**/index.html')).forEach(function (file) {
-          const newPath = file.replace('pages/', '')
-          if (newPath === 'home/index.html') {
-            newPath = 'index.html'
-          }
-          files[newPath] = files[file]
-          delete files[file]
-        })
-        // move 404 out of subdirectory
-        if (files['404/index.html']) {
-          files['404.html'] = files['404/index.html']
-          delete files['404/index.html']
-        }
-        // move favicons into root directory
-        Object.keys(files).filter(minimatch.filter('images/favicons/**')).forEach(function (file) {
-          files[path.basename(file)] = files[file]
-          delete files[file]
-        })
-        // move galleries under events
-        Object.keys(files).filter(minimatch.filter('galleries/**')).forEach(function (file) {
-          const filePath = 'events/' + files[file].event.fields.slug + '/photos/index.html'
-          files[filePath] = files[file]
-          files[filePath].title = 'Photos'
-          delete files[file]
-        })
-        // move tags under talks
-        Object.keys(files).filter(minimatch.filter('tags/**')).forEach(function (file) {
-          const filePath = 'talks/' + file
-          files[filePath] = files[file]
-          delete files[file]
-        })
-        // hack to get eagx/organize into place
-        files['eagx/organize/index.html'] = files['organize-eagx/index.html']
-        delete files['organize-eagx/index.html']
-        done()
-      })
+      ]))
       .use(_message.info('Moved files into place'))
-      // .use(function (files,metalsmith,done){
-      //     console.log(Object.keys(files))
-      // })
-      .use(function (files, metalsmith, done) {
-        // add paths to HTML files
-        Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function (file) {
-          files[file].path = file !== 'index.html' ? file.replace('/index.html', '') : '/'
-          files[file].canonical = (file !== 'index.html' ? '/' : '') + files[file].path + (file !== 'index.html' ? '/' : '')
-        })
-        done()
-      })
+      .use(addPaths)
       .use(branch()
         .pattern('**/*.html')
         .use(navigation({
@@ -384,177 +167,24 @@ function build (buildCount) {
         }, {
           permalinks: true
         }))
-    )
+      )
       .use(_message.info('Added navigation metadata'))
-      .use(function (files, metalsmith, done) {
-        const dynamicSiteRedirects = files['settings/_redirects'].contents.toString().split('\n').sort()
-        // build a list of redirects from file meta
-        const metadata = metalsmith.metadata()
-        const redirects = {}
-        const redirectsFile = []
-        Object.keys(files).forEach(function (file) {
-          if (files[file].redirects) {
-            files[file].redirects.forEach(function (redirect) {
-              if (redirect !== '/' + files[file].path) {
-                redirects[redirect] = files[file]
-                redirectsFile.push(redirect + ' /' + files[file].path + ' 301')
-              }
-            })
-          }
-        })
-
-        // inject the list of redirects into the global metadata
-        metadata.redirects = redirects
-
-        // create a _redirects file for Netlify
-        redirectsFile.sort()
-        dynamicSiteRedirects.sort()
-        redirectsFile = redirectsFile.concat(dynamicSiteRedirects)
-        files._redirects = {contents: redirectsFile.join('\n')}
-        done()
-      })
-      .use(_message.info('Calculated redirects'))
-      // parse 'series' hierarchy to use file objects from the build
-      .use(function (files, metalsmith, done) {
-        // create a lookup table of contentful data IDs and metalsmith files
-        metalsmith.metadata().fileIDMap = {}
-        const fileIDMap = metalsmith.metadata().fileIDMap
-        Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function (file) {
-          if (files[file].id) {
-            fileIDMap[files[file].id] = files[file]
-          }
-        })
-        done()
-      })
-      .use(function (files, metalsmith, done) {
-        const defaultItem = {
-          file: {},
-          type: '',
-          children: []
-        }
-        const fileIDMap = metalsmith.metadata().fileIDMap
-        // recursive function to traverse series
-        function getChildren (data, seriesSlug) {
-          const children = []
-          if (data.sys.contentType.sys.id === 'series' && data.fields.items && data.fields.items.length > 0) {
-            data.fields.items.forEach(function (child) {
-              const childItem = Object.assign({}, defaultItem)
-              childItem.file = fileIDMap[child.sys.id]
-              if (!childItem.file) {
-                // file is probably archived or unpublished
-                return
-              }
-              childItem.type = childItem.file.data.sys.contentType.sys.id
-              childItem.children = getChildren(child)
-              children.push(childItem)
-            })
-          }
-          if (seriesSlug) {
-            children.forEach(function (child, index) {
-              // assign series info to original file
-              child.file.series = child.file.series || {}
-              child.file.series[seriesSlug] = {
-                previous: index > 0 ? children[index - 1] : false,
-                next: index < children.length - 1 ? children[index + 1] : false
-              }
-            })
-          }
-          return children
-        }
-        const series = {}
-        // build a hierarchy of item IDs
-        Object.keys(files).filter(minimatch.filter('series/**/*.html')).forEach(function (file) {
-          const s = Object.assign({}, defaultItem)
-          s.file = fileIDMap[files[file].data.sys.id]
-          s.type = fileIDMap[files[file].data.sys.contentType.sys.id]
-          s.children = getChildren(files[file].data, files[file].slug)
-          series[files[file].slug] = s
-        })
-        metalsmith.metadata().seriesSet = series
-        done()
-      })
+      .use(createContentfulFileIdMap)
+      .use(createSeriesHierarchy)
       .use(_message.info('Built series hierarchy'))
-
-      // .use(function (files, metalsmith, done) {
-      //     const talks = metalsmith.metadata().collections['talks']
-      //     talks.forEach(function(talk){
-      //         console.log(talk.tags)
-      //     })
-      // })
-      // .use(_message.info('Calculated related talks'))
       // Build HTML files
-      .use(function (files, metalsmith, done) {
-        // parse HTML files
-        Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function (file) {
-          files[file].contents = parseHTML(files[file].contents.toString(), files[file], {
-            redirects: metalsmith.metadata().redirects,
-            firstPars: true
-          })
-          files[file].excerpt = files[file].excerpt ? parseHTML(files[file].excerpt.toString(), files[file], {
-            redirects: metalsmith.metadata().redirects
-          }) : ''
-        })
-        done()
-      })
-      .use(excerpts())
+      .use(markdown({
+        plugin: {
+          pattern: '**/*.html'
+        }
+      }))
       .use(_message.info('Converted Markdown to HTML'))
-      .use(function (files, metalsmith, done) {
-        // certain content has been incorporated into other pages, but we don't need them as standalone pages in our final build.
-        Object.keys(files).filter(minimatch.filter('@(series|links)/**')).forEach(function (file) {
-          delete files[file]
-        })
-        done()
-      })
+      .use(htmlPostprocessing)
+      .use(_message.info('Post-processed HTML'))
+      .use(excerpts())
       .use(shortcodes(shortcodeOpts))
       .use(_message.info('Converted Shortcodes'))
-      .use(function (files, metalsmith, done) {
-        // serialize all talks/speakers/tags into a searchable object
-        const meta = metalsmith.metadata()
-        meta.searchData = {}['talks', 'speakers', 'tags'].forEach(function (contentType) {
-          meta.searchData[contentType] = meta.collections[contentType].map((item) => ({
-            name: item.title,
-            canonical: item.canonical,
-            type: meta.collections[contentType].metadata.singular
-          }))
-        })
-        // get another array which is only speakers with talks
-        const speakerIDs = []
-        meta.collections['talks'].forEach(function (talk) {
-          const ids = talk.speakers.map(function (speaker) {
-            return speaker.sys.id
-          })
-          speakerIDs = speakerIDs.concat(ids)
-        })
-        meta.searchData['speakersWithTalks'] = meta.collections['speakers']
-          .filter(function (speaker) {
-            return speakerIDs.indexOf(speaker.id) > -1
-          })
-          .map((item) => ({
-            name: item.title,
-            canonical: item.canonical,
-            type: meta.collections['speakers'].metadata.singular
-          }))
-        done()
-      })
-      .use(_message.info('Built search index'))
-      .use(function (files, metalsmith, done) {
-        // copy 'template' key to 'layout' key
-        Object.keys(files).filter(minimatch.filter('{**/index.html,404.html}')).forEach(function (file) {
-          if (files[file].template && !files[file].layout) {
-            files[file].layout = files[file].template
-          }
-          files[file].layout = files[file].layout.replace('.jade', '.pug')
-        })
-        // get javascript files so we can inline them if needed
-        Object.keys(files).filter(minimatch.filter('**/*.js')).forEach(function (file) {
-          jsFiles[file] = files[file].contents.toString()
-        })
-        // store `contents` field in `contentsRaw` before we template, so we can use the parsed HTML (without any templating cruft) in other templates
-        Object.keys(files).filter(minimatch.filter('**/*.html')).forEach(function (file) {
-          files[file].contentsRaw = files[file].contents
-        })
-        done()
-      })
+      .use(saveRawContents)
       .use(layouts(Object.assign({
         engine: 'pug',
         directory: paths.layouts(),
@@ -588,10 +218,6 @@ function build (buildCount) {
           minifyJS: true
         }))
         .use(_message.info('Minified HTML'))
-        .use(_message.info('Cleaning CSS', chalk.dim))
-        .use(purifyCSS)
-        .use(_message.info('Cleaned CSS files'))
-        // concat main CSS and icon CSS together and put back in the right place
         .use(concat({
           files: ['styles/app.min.css', 'styles/icons.css'],
           output: 'styles/app.min.css',
@@ -599,20 +225,17 @@ function build (buildCount) {
           forceOutput: true
         }))
         .use(_message.info('Concatenated CSS files'))
+        .use(purifyCSS)
+        .use(_message.info('Cleaned CSS files'))
         .use(cleanCSS({
           cleanCSS: {
             rebase: false
           }
         }))
-        .use(function (files, metalsmith, done) {
-          // delete sourcemaps from production builds
-          // delete settings folder
-          Object.keys(files).filter(minimatch.filter('{**/*.map,settings/**}')).forEach(function (file) {
-            delete files[file]
-          })
-
-          done()
-        })
+        // delete sourcemaps and settings
+        .use(deleteFiles({
+          filter: '{**/*.map,settings/**}' 
+        }))
         .use(sitemap({
           hostname: site.url,
           omitIndex: true,

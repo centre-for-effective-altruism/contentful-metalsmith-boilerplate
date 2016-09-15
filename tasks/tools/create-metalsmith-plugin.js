@@ -36,41 +36,12 @@ function run () {
     .then((answers) => {
       const plugin = {
         name: answers.name,
-        description: capitalize.words(answers.description),
+        description: capitalize(answers.description),
         fileName: `${slug(answers.name)}`,
         functionName: camelCase(answers.name)
       }
 
-      const pluginFile = [
-        `// ${plugin.name} - ${plugin.description}`,
-        `const minimatch = require('minimatch')`,
-        `const debug = require('debug')('${plugin.fileName}')  // DEBUG=${plugin.fileName}`,
-        ``,
-        `function ${plugin.functionName}Plugin (opts) {`,
-        `  const defaults = {`,
-        `    // set some default options here`,
-        `    filter: '**/*.html'`,
-        `  }`,
-        `  const options = Object.assign(defaults, opts)`,
-        `  // filter param can either be a glob string (passed to minimatch.filter) or a function suitable for Array.filter()`,
-        `  const filter = typeof options.filter === 'string' ? minimatch.filter(options.filter) : filter`,
-        `  // main plugin returned to Metalsmith`,
-        `  return function ${plugin.functionName} (files, metalsmith, done) {`,
-        `    // plugin code goes here`,
-        `    Object.keys(files).filter(filter).forEach((file) => {`,
-        `      // loop through a filtered subset of files...`,
-        `    })`,
-        `    // tell Metalsmith that we're done`,
-        `    done()`,
-        `  }`,
-        `}`,
-        ``,
-        `module.exports = ${plugin.functionName}Plugin`,
-        `// require this plugin in ./tasks/metalsmith using:`,
-        `// const ${plugin.functionName} = require(paths.lib('metalsmith/plugins/${plugin.fileName}.js'))`,
-        ``
-      ].join('\n')
-
+      const pluginFile = pluginFileFactory(plugin)
       const filePath = paths.lib(`metalsmith/plugins/${plugin.fileName}.js`)
 
       return fs.writeFileAsync(filePath, pluginFile)
@@ -85,6 +56,44 @@ function run () {
       console.error(e.name, e.message)
       console.trace(e)
     })
+}
+
+function pluginFileFactory (plugin) {
+  return `const minimatch = require('minimatch')
+const debug = require('debug')('${plugin.fileName}')  // DEBUG=${plugin.fileName}
+const paths = require('../../helpers/file-paths') // helper to get build system paths
+
+/**
+ * ${plugin.name} (Metalsmith plugin)
+ *
+ * ${plugin.description}
+ *
+ * @param {Object}          opts - plugin options
+ * @param {(Object|string)} opts.filter - a glob pattern (passed to minimatch) or a filter function compatible with Array.filter() (will be passed Metalsmith filenames)
+ *
+ */
+function ${plugin.functionName}Plugin (opts) {
+  const defaults = {
+    // set some default options here
+    filter: '**/*.html'
+  }
+  const options = Object.assign(defaults, opts)
+  const filter = typeof options.filter === 'string' ? minimatch.filter(options.filter) : filter
+  // main plugin returned to Metalsmith
+  return function ${plugin.functionName} (files, metalsmith, done) {
+    // plugin code goes here
+    Object.keys(files).filter(filter).forEach((file) => {
+      // loop through a filtered subset of files...
+    })
+    // tell Metalsmith that we're done
+    done()
+  }
+}
+
+module.exports = ${plugin.functionName}Plugin
+// require this plugin in ./tasks/metalsmith using:
+// const ${plugin.functionName} = require(paths.lib('metalsmith/plugins/${plugin.fileName}.js'))
+`
 }
 
 function noConflict (name) {
