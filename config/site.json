@@ -1,0 +1,8 @@
+{
+  "title" : "Contentful Metalsmith Boilerplate",
+  "domain" : "contentful-metalsmith-demo.netlify.com",
+  "protocol" : "http://",
+  "description": "Boilerplate for getting a Contentful/Metalsmith site up and running quickly",
+  "keywords": "contentful, metalsmith, netlify, boilerplate",
+  "ogImageDefault": "/images/layout/og-image-default.jpg"
+}
