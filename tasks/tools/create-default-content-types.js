@@ -25,9 +25,9 @@ var contentTypes = [
     ]
   },
   {
-    name: 'Post',
+    name: 'Blog Post',
     id: 'post',
-    plural: 'Posts',
+    plural: 'Blog Posts',
     description: 'A blog post',
     pagination: true,
     paginationPerPage: 10,
