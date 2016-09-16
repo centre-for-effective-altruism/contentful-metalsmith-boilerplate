@@ -39,13 +39,8 @@ const concat = require('metalsmith-concat')
 const branch = require('metalsmith-branch')
 message.status('Loaded utility plugins')
 // Markdown processing
-const MarkdownIt = require('metalsmith-markdownit')
-const markdown = MarkdownIt('default')
-// const inspect = require('util').inspect
-// console.log(markdown()({},{},()=>{console.log('done called')}))
-// return
+const markdown = require('metalsmith-markdownit')
 const MarkdownItAttrs = require('markdown-it-attrs')
-// markdown.use(MarkdownItAttrs)
 const htmlPostprocessing = require(paths.lib('metalsmith/plugins/html-postprocessing'))
 const sanitizeShortcodes = require(paths.lib('metalsmith/plugins/sanitize-shortcodes.js'))
 const saveRawContents = require(paths.lib('metalsmith/plugins/save-raw-contents'))
@@ -171,7 +166,11 @@ function build (buildCount) {
       .use(createSeriesHierarchy())
       .use(_message.info('Built series hierarchy'))
       // Build HTML files
-      .use(markdown)
+      .use(markdown({
+        plugin: {
+          pattern: '**/*.html'
+        }
+      }).use(MarkdownItAttrs))
       .use(_message.info('Converted Markdown to HTML'))
       .use(htmlPostprocessing())
       .use(sanitizeShortcodes())
