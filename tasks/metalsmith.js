@@ -9,7 +9,8 @@ require('dotenv').load({silent: true})
 var console = require('better-console')
 // get path helpers
 const paths = require('../lib/helpers/file-paths')
-require(paths.helpers('console-banner'))({ title: 'Building the site using Metalsmith!', color: 'cyan' })
+const site = require(paths.helpers('site-information'))
+require(paths.helpers('console-banner'))({ title: `Building ${site.title}!`, color: 'cyan' })
 // start a logger with a timer
 const LogMessage = require(paths.helpers('log-message'))
 const message = new LogMessage()
@@ -97,11 +98,7 @@ if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production')
   const sitemap = require('metalsmith-sitemap')
   message.status('Loaded production modules')
 }
-// utility
-const NotificationCenter = require('node-notifier').NotificationCenter
-const notifier = new NotificationCenter()
 // utility global const to hold 'site' info from our settings file, for reuse in other plugins
-const site = require(paths.helpers('site-information'))
 
 message.status('Loaded utilities...')
 message.success('All dependencies loaded!')
@@ -147,6 +144,10 @@ function build (buildCount) {
         {
           pattern: 'home/index.html',
           rebase: ['home', '']
+        },
+        {
+          pattern: 'posts/**/index.html',
+          rebase: ['posts', 'blog']
         }
       ]))
       .use(_message.info('Moved files into place'))
@@ -191,13 +192,12 @@ function build (buildCount) {
       .use(_message.info('Built HTML files from templates'))
       .use(icons({
         fontDir: 'fonts',
-        customIcons: 'fonts/glyphs.json'
       }))
       .use(_message.info('Added icon fonts'))
       .use(lazysizes({
         widths: [100, 480, 768, 992, 1200, 1800],
         qualities: [ 50, 70, 70, 70, 70, 70],
-        backgrounds: ['#content-wrapper', '.featured-image', '.card-thumbnail'],
+        backgrounds: ['.card-thumbnail'],
         ignore: '/images/**',
         ignoreSelectors: '.content-block-content',
         querystring: {
