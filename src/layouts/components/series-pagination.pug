@@ -3,7 +3,7 @@ mixin parentLink(position, file)
 		- var parentFile = fileIDMap[file.parent.sys.id];
 			em #{position} of this series
 			br
-			a(href=parentFile.canonical)
+			a(href=parentFile.path)
 				i.fa.fa-backward
 				strong  Go back to the #{parentFile.title} #{parentFile.contentType}
 
@@ -18,10 +18,10 @@ if Object.keys(series).length>0
 						each child,index in seriesSet[seriesSlug].children
 							li.series-contents-item #{index+1}. 
 								- var itemText = typogr.typogrify(child.file.title)
-								if canonical === child.file.canonical
+								if path === child.file.path
 									strong!= itemText
 								else 
-									a(href=child.file.canonical)!= itemText
+									a(href=child.file.path)!= itemText
 					a.series-contents-toggle.collapsed(href='#'+seriesContentsID, role="button", data-toggle="collapse", aria-expanded="false" aria-controls=seriesContentsID)
 						span.show-contents 
 							| show
@@ -36,7 +36,7 @@ if Object.keys(series).length>0
 				ul.series-pagination-links
 					li.series-pagination-previous
 						if s.previous
-							a(href=s.previous.file.canonical)
+							a(href=s.previous.file.path)
 								i.fa.fa-long-arrow-left
 								|  Previous #{seriesType}
 								br
@@ -45,7 +45,7 @@ if Object.keys(series).length>0
 							+parentLink('Beginning', seriesSet[seriesSlug].file)
 					li.series-pagination-next
 						if s.next
-							a(href=s.next.file.canonical)
+							a(href=s.next.file.path)
 								| Next #{seriesType} 
 								i.fa.fa-long-arrow-right
 								br

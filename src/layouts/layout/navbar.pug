@@ -13,7 +13,7 @@ nav#navbar-main.navbar.navbar-primary.navbar-fixed-top.nav-minimal
                         case item.type
                             when 'page'
                                 li.nav(class=(breadcrumb_path && breadcrumb_path[0] && breadcrumb_path[0].path === file.path ? 'active' : ''))
-                                    a(href=file.canonical, id="navbar-link-"+file.slug, title=file.title)!= file.shortTitle || file.title
+                                    a(href=file.path, id="navbar-link-"+file.slug, title=file.title)!= file.shortTitle || file.title
                             when 'link'
-                                li.nav(class=(file.url.substr(0,1)==='/' && path.replace(/\//g,'') === file.url.replace(/\//g,'') ? 'active' : ''))
-                                    a(href=file.url id="navbar-link-"+slugify(file.title) target=file.url.substr(0,1)==='/'?false:'_blank')!= file.title
+                                li.nav(class=(file.uri.substr(0,1)==='/' && path.replace(/\//g,'') === file.uri.replace(/\//g,'') ? 'active' : ''))
+                                    a(href=file.uri id="navbar-link-"+slugify(file.title) target=file.uri.substr(0,1)==='/'?false:'_blank')!= file.title

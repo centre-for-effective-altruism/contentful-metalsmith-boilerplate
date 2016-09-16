@@ -91,12 +91,12 @@ block content
 				ul.pagination
 					if pagination.previous
 						li
-							a(href=pagination.previous.canonical, aria-label='Previous')
+							a(href=pagination.previous.path, aria-label='Previous')
 								span(aria-hidden='true') «
 					each page,index in pagination.getPages(10)
 						li
-							a(href=page.canonical)!= index+1
+							a(href=page.path)!= index+1
 					if pagination.next
 						li
-							a(href=pagination.next.canonical, aria-label='Previous')
+							a(href=pagination.next.path, aria-label='Previous')
 								span(aria-hidden='true') »

@@ -2,7 +2,7 @@ mixin event(event)
 	- var dateFormat = 'D MMMM'
 	section.event(class=slugify(event.eventType))
 		h3.event-title
-			a(href=event.canonical)!= event.title
+			a(href=event.path)!= event.title
 		p.event-type!= event.type
 		p.event-date #{moment(event.startDate).format(dateFormat)}
 			if moment(event.endDate).isAfter(event.startDate,'day')

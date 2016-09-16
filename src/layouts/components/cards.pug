@@ -45,13 +45,13 @@ mixin card(item, opts)
 		figure.card(class=cardClasses)
 			.card-thumbnail(style=thumbnailStyles)
 				.content
-					a.card-thumbnail-link(href=item.canonical)
+					a.card-thumbnail-link(href=item.path)
 						if item.contentType === 'talk'
 							.card-play-icon-wrapper
 								i.fa.fa-play-circle
 			figcaption.card-caption
 				h4.card-title
-					a(href=item.canonical)!= typogr.typogrify(item.title)
+					a(href=item.path)!= typogr.typogrify(item.title)
 				if item.contentType === 'talk'
 					if showSpeakers
 						include ../helpers/format-multiple-speakers
@@ -61,7 +61,7 @@ mixin card(item, opts)
 					if showEvent
 						.card-talk-event
 							- var event = fileIDMap[item.event.sys.id]
-							a(href=event.canonical)!= event.title
+							a(href=event.path)!= event.title
 				if item.contentType === 'event'
 					include ../helpers/format-event-details
 					if showDates
@@ -79,4 +79,4 @@ mixin card(item, opts)
 						.card-speaker-bio
 							!= item.contentsRaw	
 					if readMore
-						a.card-speaker-more(href=item.canonical) Read more about #{item.title}
+						a.card-speaker-more(href=item.path) Read more about #{item.title}

@@ -4,6 +4,6 @@ if breadcrumb_path.length>1
 			if breadcrumb.file
 				if path!==breadcrumb.path
 					li
-						a(href=breadcrumb.file.canonical)!= breadcrumb.file.title
+						a(href=breadcrumb.file.path)!= breadcrumb.file.title
 				else
 					li!= breadcrumb.file.title
