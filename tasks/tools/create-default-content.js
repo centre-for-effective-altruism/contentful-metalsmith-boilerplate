@@ -23,12 +23,12 @@ function run () {
         .then((pages) => contentful.itemQueue('publish', pages))
         .then((pages) => {
           entriesForNavSeries = entriesForNavSeries.concat(pages)
-          console.log(tick, 'Created Lages')
+          console.log(tick, 'Created Pages')
         }),
       space.queue('createEntry', 'post', contentful.formatItems(schema.posts))
         .then((posts) => contentful.itemQueue('publish', posts))
         .then((posts) => {
-          console.log(tick, 'Created Losts')
+          console.log(tick, 'Created Posts')
         }),
       space.queue('createEntry', 'link', contentful.formatItems(schema.links))
         .then((links) => contentful.itemQueue('publish', links))
@@ -37,7 +37,8 @@ function run () {
           console.log(tick, 'Created Links')
         })
     ])
-    .delay(2000) // wait for everything to be published successfully, otherwise the series won't resolve links properly...
+    .then(() => { console.info('Waiting while assets publish...') })
+    .delay(5000) // wait for everything to be published successfully, otherwise the series won't resolve links properly...
     .then(() => {
       const seriesItems = []
       entriesForNavSeries.forEach((entry) => {
