@@ -4,7 +4,7 @@ html.no-js(prefix="og: http://ogp.me/ns#")
     body(class=[slug==="/" ? 'home' : slug, collectionSlug])
         include ./layout/navbar
         block contentWrapper
-            section#content-wrapper(style="background-image: url('https://images.contentful.com/70c29flvim3q/1QUxlZRmocSmqsAgskciuG/049cb55c4221872f8a784a44047ca37b/world-map-greyscale.jpg');")
+            section#content-wrapper
                 .container
                     include ./layout/warnings
                     block header
