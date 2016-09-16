@@ -19,21 +19,27 @@ function run () {
   return contentful.space((space) => {
     // create pages
     return Promise.all([
-      space.queue('createEntry', 'page', contentful.formatItems(schema.pages))
-        .then((pages) => contentful.itemQueue('publish', pages))
-        .then((pages) => {
-          entriesForNavSeries = entriesForNavSeries.concat(pages)
+      Promise.map(contentful.formatItems(schema.pages), (page) => {
+        return space.createEntry('page', page)
+          .then((page) => page.publish())
+          .then((page) => { entriesForNavSeries.push(page) })
+      })
+        .then(() => {
           console.log(tick, 'Created Pages')
         }),
-      space.queue('createEntry', 'post', contentful.formatItems(schema.posts))
-        .then((posts) => contentful.itemQueue('publish', posts))
-        .then((posts) => {
+      Promise.map(contentful.formatItems(schema.posts), (post) => {
+        return space.createEntry('post', post)
+          .then((post) => post.publish())
+      })
+        .then(() => {
           console.log(tick, 'Created Posts')
         }),
-      space.queue('createEntry', 'link', contentful.formatItems(schema.links))
-        .then((links) => contentful.itemQueue('publish', links))
-        .then((links) => {
-          entriesForNavSeries = entriesForNavSeries.concat(links)
+      Promise.map(contentful.formatItems(schema.links), (link) => {
+        return space.createEntry('link', link)
+          .then((link) => link.publish())
+          .then((link) => { entriesForNavSeries.push(link) })
+      })
+        .then(() => {
           console.log(tick, 'Created Links')
         })
     ])
