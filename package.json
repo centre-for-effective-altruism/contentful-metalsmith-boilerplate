@@ -86,7 +86,6 @@
     "moment": "^2.15.0",
     "ncp": "^2.0.0",
     "needle": "^1.1.2",
-    "node-notifier": "^4.6.1",
     "node-sass": "^3.10.0",
     "numeral": "^1.5.3",
     "pad-number": "0.0.4",
