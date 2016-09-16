@@ -17,7 +17,7 @@ const _message = message.plugin // metalsmith wrapper for message
 
 console.info(`NODE_ENV: ${process.env.NODE_ENV}`)
 console.info(`NODE VERSION: ${process.version}`)
-console.info(`BUILD TIMESTAMP: ${message.timestamp}`)
+console.info(`BUILD TIMESTAMP: ${message.timestamp()}`)
 
 // default process.env.NODE_ENV to development
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
@@ -40,9 +40,12 @@ const branch = require('metalsmith-branch')
 message.status('Loaded utility plugins')
 // Markdown processing
 const MarkdownIt = require('metalsmith-markdownit')
-const markdown = MarkdownIt()
+const markdown = MarkdownIt('default')
+// const inspect = require('util').inspect
+// console.log(markdown()({},{},()=>{console.log('done called')}))
+// return
 const MarkdownItAttrs = require('markdown-it-attrs')
-markdown.use(MarkdownItAttrs)
+// markdown.use(MarkdownItAttrs)
 const htmlPostprocessing = require(paths.lib('metalsmith/plugins/html-postprocessing'))
 const sanitizeShortcodes = require(paths.lib('metalsmith/plugins/sanitize-shortcodes.js'))
 const saveRawContents = require(paths.lib('metalsmith/plugins/save-raw-contents'))
@@ -51,9 +54,9 @@ message.status('Loaded Markdown/HTML parsing plugins')
 const layouts = require('metalsmith-layouts')
 const remapLayoutNames = require(paths.lib('metalsmith/plugins/remap-layout-names'))
 const shortcodes = require('metalsmith-shortcodes')
-const shortcodes = require('metalsmith-shortcodes')
 const lazysizes = require('metalsmith-lazysizes')
 const icons = require('metalsmith-icons')
+const favicons = require(paths.lib('metalsmith/plugins/favicons'))
 message.status('Loaded layout plugins')
 // methods to inject into layouts / shortcodes
 const layoutUtils = {
@@ -85,6 +88,7 @@ const pagination = require('metalsmith-pagination')
 const navigation = require('metalsmith-navigation')
 const create404 = require(paths.lib('metalsmith/plugins/create-404.js'))
 const rebase = require(paths.lib('metalsmith/plugins/rebase'))
+const deleteFiles = require(paths.lib('metalsmith/plugins/delete-files.js'))
 const addPaths = require(paths.lib('metalsmith/plugins/add-paths.js'))
 const createContentfulFileIdMap = require(paths.lib('metalsmith/plugins/create-contentful-file-id-map.js'))
 const createSeriesHierarchy = require(paths.lib('metalsmith/plugins/create-series-hierarchy.js'))
@@ -106,6 +110,7 @@ const site = require(paths.helpers('site-information'))
 
 message.status('Loaded utilities...')
 message.success('All dependencies loaded!')
+build()()
 
 // call the master build function
 function build (buildCount) {
@@ -120,44 +125,37 @@ function build (buildCount) {
       .use(ignore([
         '**/.DS_Store'
       ]))
-      .use(injectSiteMetadata)
+      .use(injectSiteMetadata())
       .use(injectContentfulFiles(contentTypes.contentful))
       .use(_message.info('Prepared global metadata'))
       .use(contentful({
-        'accessToken': process.env.CONTENTFUL_ACCESS_TOKEN
+        access_token: process.env.CONTENTFUL_DELIVERY_ACCESS_TOKEN,
+        space_id: process.env.CONTENTFUL_SPACE
       }))
-      .use(function (files, metalsmith, done) {
-        // get rid of the contentful source files from the build
-        Object.keys(files).filter(minimatch.filter('**/*.contentful')).forEach(function (file) {
-          delete files[file]
-        })
-        done()
-      })
+      .use(deleteFiles({
+        filter: '**/*.contentful'
+      }))
       .use(_message.info('Downloaded content from Contentful'))
-      .use(processContentfulMetadata)
-      .use(remapLayoutNames)
+      .use(processContentfulMetadata())
+      .use(remapLayoutNames())
       .use(_message.info('Processed Contentful metadata'))
       .use(collections(contentTypes.collections))
       .use(pagination(contentTypes.pagination))
       .use(_message.info('Added files to collections'))
-      .use(checkSlugs)
-      .use(create404)
+      .use(checkSlugs())
+      .use(create404())
       .use(rebase([
         {
-          pattern: 'pages/**/*.index.html',
+          pattern: 'pages/**/index.html',
           rebase: ['pages', '']
         },
         {
           pattern: 'home/index.html',
           rebase: ['home', '']
-        },
-        {
-          pattern: 'images/favicons/**',  // move favicons to root directory
-          rebase: (file) => file.split('/').pop()
         }
       ]))
       .use(_message.info('Moved files into place'))
-      .use(addPaths)
+      .use(addPaths())
       .use(branch()
         .pattern('**/*.html')
         .use(navigation({
@@ -169,22 +167,22 @@ function build (buildCount) {
         }))
       )
       .use(_message.info('Added navigation metadata'))
-      .use(createContentfulFileIdMap)
-      .use(createSeriesHierarchy)
+      .use(createContentfulFileIdMap())
+      .use(createSeriesHierarchy())
       .use(_message.info('Built series hierarchy'))
       // Build HTML files
-      .use(markdown({
-        plugin: {
-          pattern: '**/*.html'
-        }
-      }))
+      .use(markdown)
       .use(_message.info('Converted Markdown to HTML'))
-      .use(htmlPostprocessing)
+      .use(htmlPostprocessing())
+      .use(sanitizeShortcodes())
       .use(_message.info('Post-processed HTML'))
       .use(excerpts())
       .use(shortcodes(shortcodeOpts))
       .use(_message.info('Converted Shortcodes'))
-      .use(saveRawContents)
+      .use(deleteFiles({
+        filter: '@(series|links)/**' 
+      }))
+      .use(saveRawContents())
       .use(layouts(Object.assign({
         engine: 'pug',
         directory: paths.layouts(),
@@ -225,7 +223,7 @@ function build (buildCount) {
           forceOutput: true
         }))
         .use(_message.info('Concatenated CSS files'))
-        .use(purifyCSS)
+        .use(purifyCSS())
         .use(_message.info('Cleaned CSS files'))
         .use(cleanCSS({
           cleanCSS: {
@@ -246,33 +244,12 @@ function build (buildCount) {
 
     // Run build
     metalsmith.use(_message.info('Finalising build')).build(function (err, files) {
-      const t = formatBuildTime(buildTime)
       if (err) {
-        message('Build failed!', chalk.red.bold)
+        message.error('Build failed!')
         console.trace(err)
-        if (process.env.NODE_ENV === 'development') {
-          notifier.notify({
-            title: 'Build failed!',
-            message: err,
-            appIcon: '',
-            contentImage: path.join(__dirname, '..', 'src', 'metalsmith', 'images', 'favicons', 'favicon-96x96.png'), // absolute path (not balloons) 
-            sound: 'Funk',
-            activate: 'com.apple.Terminal'
-          })
-        }
       }
       if (files) {
-        if (process.env.NODE_ENV === 'development') {
-          notifier.notify({
-            title: 'Build succeeded!',
-            message: 'Click to switch to Chrome',
-            appIcon: '',
-            contentImage: path.join(__dirname, '..', 'src', 'metalsmith', 'images', 'favicons', 'favicon-96x96.png'), // absolute path (not balloons) 
-            sound: 'Glass',
-            activate: 'com.google.Chrome'
-          })
-        }
-        message('✓ Build OK!', chalk.green.bold)
+        message.success('Build done!')
       }
       if (process.env.NODE_ENV === 'development' && typeof done === 'function') {
         done()
