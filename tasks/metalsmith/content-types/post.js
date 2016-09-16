@@ -9,7 +9,7 @@ module.exports = {
     plural: 'posts'
   },
   contentfulId: 'post',
-  slugField: ':sys.id',
+  contentfulFilenameField: 'fields.slug',
   collection: {
     sort: 'date',
     reverse: true

@@ -26,7 +26,7 @@ const contentfulFieldWarnings = require(paths.helpers('contentful-field-warnings
 const wordwrap = require('wordwrap')(64)
 
 const chalk = require('chalk')
-const tick = paths.helpers('tick')
+const tick = require(paths.helpers('tick'))
 const submsgPrefix = '   > '
 const banner = require(paths.helpers('console-banner'))
 
@@ -129,7 +129,7 @@ function generate (contentTypeData) {
                 plural: slug(trim(data.plural))
               },
               contentfulId: data.id, // used by the API
-              slugField: data.slugField ? ':fields.slug' : ':sys.id', // used by metalsmith-contentful to build filenames
+              contentfulFilenameField: data.slugField === false ? 'sys.id' : 'fields.slug', // used by metalsmith-contentful to build filenames
               collection: {
                 sort: data.collectionSortField || 'title',
                 reverse: data.collectionSortReverse || false
