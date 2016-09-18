@@ -1,14 +1,14 @@
-// Schema for Blog Posts
+// Schema for Posts
 module.exports = {
   name: {
-    singular: 'Blog Post',
-    plural: 'Blog Posts'
+    singular: 'Post',
+    plural: 'Posts'
   },
   slug: {
-    singular: 'blog-post',
-    plural: 'blog-posts'
+    singular: 'post',
+    plural: 'posts'
   },
-  contentfulId: 'blogPost',
+  contentfulId: 'post',
   contentfulFilenameField: 'fields.slug',
   collection: {
     sort: 'date',
