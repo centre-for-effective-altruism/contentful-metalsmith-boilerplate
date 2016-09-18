@@ -1,35 +1,35 @@
 // Generate the .env file
 
 const Promise = require('bluebird')
+const paths = require('../../lib/helpers/file-paths')
 
 const inquirer = require('inquirer')
-const validation = require('../lib/helpers/inquirer-validation')
+const validation = require(paths.helpers('inquirer-validation'))
 const validate = validation.validate
 const required = validation.required
 
 const chalk = require('chalk')
 const fs = Promise.promisifyAll(require('fs'))
-const path = require('path')
 
 const tick = chalk.green('✓')
-const banner = require('../lib/helpers/console-banner')
+const banner = require(paths.helpers('console-banner'))
 
 const dotenvKeys = {
   CONTENTFUL_SPACE: {
     message: 'Contentful Space ID',
-    validate: [required, validateContentfulSpaceID]
+    validate: validate(required, validateContentfulSpaceID)
   },
   CONTENTFUL_DELIVERY_ACCESS_TOKEN: {
     message: 'Contentful Delivery API Access Token',
-    validate: [required, validateContentfulAPIKey]
+    validate: validate(required, validateContentfulAPIKey)
   },
   CONTENTFUL_PREVIEW_ACCESS_TOKEN: {
     message: 'Contentful Preview API Access Token',
-    validate: [validateContentfulAPIKey]
+    validate: validate(validateContentfulAPIKey)
   },
   CONTENTFUL_MANAGEMENT_ACCESS_TOKEN: {
     message: 'Contentful Content Management API Access Token',
-    validate: [required, validateContentfulAPIKey]
+    validate: validate(required, validateContentfulAPIKey)
   }
 }
 
@@ -62,7 +62,7 @@ function run () {
     .then((answers) => {
       const dotenv = Object.keys(dotenvTemplateDefaults).map((key) => `${key}=${dotenvTemplateDefaults[key]}`)
         .concat(Object.keys(answers).map((key) => `${key}=${answers[key]}`))
-      return fs.writeFileAsync(path.join(__dirname, '..', '.env'), dotenv.join('\n'))
+      return fs.writeFileAsync(paths.root('.env'), dotenv.join('\n'))
         .then(() => {
           console.log(tick, chalk.cyan('.env'), 'file created successfully')
         })
