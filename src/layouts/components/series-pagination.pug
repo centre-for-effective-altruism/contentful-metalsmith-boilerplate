@@ -9,13 +9,13 @@ mixin parentLink(position, file)
 
 if Object.keys(series).length>0
 	each s,seriesSlug in series
-		if seriesSet[seriesSlug] && seriesSet[seriesSlug] && seriesSet[seriesSlug].file.paginateItems
+		if seriesSets[seriesSlug] && seriesSets[seriesSlug] && seriesSets[seriesSlug].file.paginateItems
 			.series-pagination
 				.series-pagination-series-title-wrapper Part of the series 
-					h4.series-pagination-series-title!= typogr.typogrify(seriesSet[seriesSlug].file.title)
+					h4.series-pagination-series-title!= typogr.typogrify(seriesSets[seriesSlug].file.title)
 					-var seriesContentsID = "series-contents-"+seriesSlug
 					ol.collapse.series-contents(id=seriesContentsID)
-						each child,index in seriesSet[seriesSlug].children
+						each child,index in seriesSets[seriesSlug].children
 							li.series-contents-item #{index+1}. 
 								- var itemText = typogr.typogrify(child.file.title)
 								if path === child.file.path
@@ -42,7 +42,7 @@ if Object.keys(series).length>0
 								br
 								strong!= typogr.typogrify(s.previous.file.title)
 						else 
-							+parentLink('Beginning', seriesSet[seriesSlug].file)
+							+parentLink('Beginning', seriesSets[seriesSlug].file)
 					li.series-pagination-next
 						if s.next
 							a(href=s.next.file.path)
@@ -51,4 +51,4 @@ if Object.keys(series).length>0
 								br
 								strong!= typogr.typogrify(s.next.file.title)
 						else 
-							+parentLink('End', seriesSet[seriesSlug].file)
+							+parentLink('End', seriesSets[seriesSlug].file)

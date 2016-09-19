@@ -1,0 +1,10 @@
+mixin formatMultipleSpeakers(people)
+	ul.people-list
+		each p, index in people
+			- var person = contentfulIDMap[p.sys.id]
+			li.people-list-person
+				a.person-name(href=person.path)!= person.title
+			if people.length > 2 && index < people.length-2
+				li.people-list-divider-comma , 
+			if people.length > 1 && index === people.length-2
+				li.people-list-divider-amp  &amp;

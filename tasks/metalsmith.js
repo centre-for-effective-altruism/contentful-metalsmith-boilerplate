@@ -88,14 +88,19 @@ const deleteFiles = require(paths.lib('metalsmith/plugins/delete-files.js'))
 const addPaths = require(paths.lib('metalsmith/plugins/add-paths.js'))
 const createContentfulFileIdMap = require(paths.lib('metalsmith/plugins/create-contentful-file-id-map.js'))
 const createSeriesHierarchy = require(paths.lib('metalsmith/plugins/create-series-hierarchy.js'))
+const addCanonicalUrls = require(paths.lib('metalsmith/plugins/add-canonical-urls'))
 message.status('Loaded metadata plugins')
 
-// only require in production
+// only require these modules in production
+let htmlMinifier
+let purifyCSS
+let cleanCSS
+let sitemap
 if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
-  const htmlMinifier = require('metalsmith-html-minifier')
-  const purifyCSS = require(paths.lib('metalsmith/plugins/purifycss.js'))
-  const cleanCSS = require('metalsmith-clean-css')
-  const sitemap = require('metalsmith-sitemap')
+  htmlMinifier = require('metalsmith-html-minifier')
+  purifyCSS = require(paths.lib('metalsmith/plugins/purifycss.js'))
+  cleanCSS = require('metalsmith-clean-css')
+  sitemap = require('metalsmith-sitemap')
   message.status('Loaded production modules')
 }
 // utility global const to hold 'site' info from our settings file, for reuse in other plugins
@@ -152,6 +157,7 @@ function build (buildCount) {
       ]))
       .use(_message.info('Moved files into place'))
       .use(addPaths())
+      .use(addCanonicalUrls())
       .use(branch()
         .pattern('**/*.html')
         .use(navigation({
@@ -210,7 +216,7 @@ function build (buildCount) {
     // stuff to only do in production
     if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
       metalsmith
-        .use(_message.info('Minifying HTML', chalk.dim))
+        .use(_message.info('Minifying HTML'))
         .use(htmlMinifier('**/*.html', {
           minifyJS: true
         }))
@@ -231,7 +237,7 @@ function build (buildCount) {
         }))
         // delete sourcemaps and settings
         .use(deleteFiles({
-          filter: '{**/*.map,settings/**}' 
+          filter: '{**/*.map,settings/**}'
         }))
         .use(sitemap({
           hostname: site.url,

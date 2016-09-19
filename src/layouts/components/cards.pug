@@ -8,34 +8,14 @@ mixin card(item, opts)
 		//- Set options
 		- var options = opts || {}
 		- var aspectPercentage = options.aspect ? options.aspect + (options.aspect.substr(options.aspect.length-1,1) === '%'?'':'%') : false;
-		- var thumbnailField = false
-		//- change flags based on content type
-		if item.contentType === 'talk'
-			- var showSpeakers = options.speakers === false ? false : true
-			- var showEvent = options.event || false;
-			- thumbnailField = 'thumbnail'
-		if item.contentType === 'event'
-			- var showLocation = options.location || false
-			- var showDates = options.dates === false ? false : true
-			- thumbnailField = 'featuredImage'
-		if item.contentType === 'speaker'
-			- var showJobTitle = options.jobTitle === false ? false : true
-			- var readMore = options.readMore || false
-			if showJobTitle
-				- var jobTitleOptions = {}
-				if options.website === false
-					- jobTitleOptions.website = false
-			- var showBio = options.bio || false
-			- thumbnailField = 'photo'
+		- var thumbnail = item.featuredImage || item.photo || item.image || item.picture || item.thumbnail || false
 		//- Set some classes for the card
 		- var cardClasses = [];
 		- cardClasses.push('card-'+item.contentType)
-		if item.contentType==='event'
-			- cardClasses.push('card-event-'+slugify(item.eventType))
 		//- merge generic flags into thumbnail styles
-		- thumbnailUrl = thumbnailField && item[thumbnailField] ? contentfulImage(item[thumbnailField]) : false
-		- var thumbnailStyles = {}
-		if thumbnailUrl
+		- var thumbnailStyles = {};
+		if thumbnail
+			- thumbnailUrl = contentfulImage(thumbnail)
 			- thumbnailStyles['background-image'] = 'url('+thumbnailUrl+')'
 		else
 			- cardClasses.push('card-no-thumbnail')
@@ -46,37 +26,6 @@ mixin card(item, opts)
 			.card-thumbnail(style=thumbnailStyles)
 				.content
 					a.card-thumbnail-link(href=item.path)
-						if item.contentType === 'talk'
-							.card-play-icon-wrapper
-								i.fa.fa-play-circle
 			figcaption.card-caption
 				h4.card-title
 					a(href=item.path)!= typogr.typogrify(item.title)
-				if item.contentType === 'talk'
-					if showSpeakers
-						include ../helpers/format-multiple-speakers
-						.card-talk-speakers
-							+formatMultipleSpeakers(item.speakers)
-
-					if showEvent
-						.card-talk-event
-							- var event = fileIDMap[item.event.sys.id]
-							a(href=event.path)!= event.title
-				if item.contentType === 'event'
-					include ../helpers/format-event-details
-					if showDates
-						.card-event-dates
-							+formatEventDates(item)
-					if showLocation
-						.card-event-location
-							+formatEventLocation(item)
-				if item.contentType === 'speaker'
-					if showJobTitle
-						include ../helpers/job-title
-						.card-speaker-jobtitle
-							+jobTitle(item, jobTitleOptions)
-					if showBio && item.contentsRaw
-						.card-speaker-bio
-							!= item.contentsRaw	
-					if readMore
-						a.card-speaker-more(href=item.path) Read more about #{item.title}

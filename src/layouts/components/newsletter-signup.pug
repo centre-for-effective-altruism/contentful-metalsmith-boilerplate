@@ -21,6 +21,8 @@ script.
 	(function(){
 		var d = document.getElementsByClassName("newsletter-signup-subscribe");
 		for (var i = 0; i < d.length; i++) {
+			// disable while javascript handler is loading, will be re-enabled by the script once loaded
+			// see ./src/scripts/lib/newsletter.js
 			d[i].className += " disabled";
 		}
-	})();
+	}());

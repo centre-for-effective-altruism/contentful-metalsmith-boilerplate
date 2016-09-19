@@ -1,3 +1,5 @@
+//- use for a generic responsive embed
+//- use opts.height / opts.width to set an arbitrary aspect ratio
 mixin embed(src, aspect)
 	- var aspectRatio = aspect || '16by9'
 	- var parsedSrc = url.parse(src)
@@ -5,10 +7,10 @@ mixin embed(src, aspect)
 			.embed-responsive(class=('embed-responsive-'+aspectRatio))
 				iframe.embed-responsive-item(src=src)
 
+//- use if you have oembed data
 mixin oembed(oembed, opts)
 	- var options = opts || {}
 	- var autoplay = options.autoplay === false ? false : true
-	- var aspectClass = 'embed-responsive-'+'16by9'
 	- var html = oembed.html
 	- var href = url.parse(html.match(/src=\"(.+?)\"/i)[1], true)
 	- var provider = oembed.provider_name
@@ -36,20 +38,3 @@ mixin oembed(oembed, opts)
 
 	.embed-responsive(style='padding-bottom: '+aspectPercentage+'%;')
 		iframe.embed-responsive-item(src=url.format(href))
-
-
-//- mixin embedModal(embedSrc,opts)
-//- 	- var options = opts || {}
-//- 	- var linkText = options.text
-//- 	- var title = options.title
-//- 	- var classNames = options.classNames
-
-//- 	.embed-modal-launch-button-wrapper
-
-//- 	include ../helpers/modal
-//- 	+modal(title, id)
-//- 		+embed(embedSrc)
-//- 	script.
-//- 		loadScript(function(){
-			
-//- 		})

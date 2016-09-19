@@ -25,15 +25,14 @@
 
 .navbar-header-brand {
 	transition: opacity 0.7s ease-in-out;
-	margin-top: 7px;
 	padding-left: $grid-gutter-width/2;
 
 }
 .navbar-header-brand-logo-wrapper {
-	@media(max-width: $screen-xs-max){
-	    width: 240px;
-	    margin-top: 6px;
-	}
+	$padding: 5px;
+	height: $navbar-height - (2 * $padding);
+	width: 84px;
+	padding: $padding 0;
 }
 
 

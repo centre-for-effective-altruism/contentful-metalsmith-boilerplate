@@ -1,7 +1,8 @@
 //- Facebook / Open Graph
-- var defaultParams = '?fit=pad&bg=white'
-- var eagLogo = 'https://images.contentful.com/70c29flvim3q/6j1bEsx6GkAYGEsMWgOakg/8141939c6c2b4a8dc88123d8841c315c/EA_Global_Vertical.png'+defaultParams
-- var eagXLogo = 'https://images.contentful.com/70c29flvim3q/1DZUwSv6UQ4goGYQGkIQ2Y/45b6f22204db8c03a8e52ffc9f96bc8e/EA_Global_X_Vertical.png'+defaultParams
+- var defaultLogo = url.parse(site.logo)
+- delete defaultLogo.search
+- defaultLogo.query = { fit: pad, bg: white };
+- defaultLogo = url.format(defaultLogo)
 
 mixin ogImageTags(contentfulImageURL)
 	- var sizes = [[1200,650],[300,300],[180,110],[120,120]]
@@ -29,76 +30,64 @@ case collectionSlug
 if slug === 'home'
 	- ogTitle = site.title + ' - ' + site.shortDescription
 meta(property="og:title" content=ogTitle)
-meta(property="og:url" content=canonicalURL)
+meta(property="og:url" content=canonical)
 meta(property="og:description" content=strip(description))
 meta(property="og:locale" content="en_US")
 meta(property="og:site_name" content=site.title)
 
 //- OG Image tags info
-- defaultLogo = eagLogo
-if breadcrumb_path && breadcrumb_path.length && breadcrumb_path[0].file && breadcrumb_path[0].file.slug === 'eagx'
-	- defaultLogo = eagXLogo
-
-- var ogImageURL = false
-case collectionSlug
-	when 'speaker'
-		- ogImageURL = photo ? contentfulImage(photo): false
-	when 'talk'
-		- ogImageURL = thumbnail ? contentfulImage(thumbnail) : false
-	when 'event'
-		- ogImageURL = featuredImage ? contentfulImage(featuredImage) : false
-	default
-		- ogImageURL = defaultLogo
-
-if !ogImageURL
-	- ogImageURL = defaultLogo
+- var ogImage = ogImage || featuredImage || photo || image|| thumbnail || false
+if ogImage
+	- var ogImageURL = contentfulImage(ogImage)
+else
+	- var ogImageURL = defaultLogo
 +ogImageTags(ogImageURL)
 
 //- Twitter Cards
 meta(name="twitter:card" content="summary")
-meta(name="twitter:site" content="@Effect_Altruism")
-meta(name="twitter:creator" content="@Effect_Altruism")
-- var twimgOpts = {w:300,h:300,fit:'thumb'}
-case collectionSlug
-	when 'speaker'
-		if photo
-			- var twitterImage = contentfulImage(photo,twimgOpts)
-	when 'talk'
-		if thumbnail
-			- var twitterImage = contentfulImage(thumbnail,twimgOpts)
-	default
-		- var twimgUrl = url.parse(defaultLogo, true)
-		- delete twimgUrl.search
-		- twimgUrl.query.w = twimgOpts.w 
-		- twimgUrl.query.h = twimgOpts.h 
-		- var twitterImage = url.format(twimgUrl)
+if site.social.twitter
+	meta(name="twitter:site" content=site.social.twitter)
+	meta(name="twitter:creator" content=site.social.twitter)
+- var twimgOpts = {w:300,h:300,fit:'thumb'};
+- var twimg = featuredImage || photo || image || thumbnail || false
+if twimg
+	- var twitterImage = contentfulImage(twimg,twimgOpts)
+else 
+	- var twimgUrl = url.parse(defaultLogo, true)
+	- delete twimgUrl.search
+	- twimgUrl.query.w = twimgOpts.w 
+	- twimgUrl.query.h = twimgOpts.h 
+	- var twitterImage = url.format(twimgUrl)
 meta(name="twitter:image" content=twitterImage)
 //- JSON Schema
 case collectionSlug
-	when 'talk'
+	when 'video'
 		script(type="application/ld+json").
 			{
 				"@context": "http://schema.org",
 				"@type": "VideoObject",
-				"url": "#{canonicalURL}",
+				"url": "#{canonical}",
 				"name": "#{title}",
 				"description": "#{strip(description)}",
 				"thumbnailUrl": "#{contentfulImage(thumbnail,{w:1920,h:1080})}",
-				"embedUrl": "#{oembed.html.match(/src=\"(.+?)\"/i)[1]}",
-				"publisher": {
-					"@type": "Organization",
-					"name": "Centre for Effective Altruism",
-					"logo": "https://images.contentful.com/es8pp29e1wp8/1S3GbfZNWsEu0oewkgQIcK/83512426465d180b4f15b77e3ea2795b/CEA_Logo_Blue.png?w=800"
-				},
+				"embedUrl": "#{oembed ? oembed.html.match(/src=\"(.+?)\"/i)[1] : embedUrl || canonical || 'false'}",
 				"datePublished": "#{moment(date).toISOString()}",
 				"uploadDate": "#{moment(date).toISOString()}"
 			}
-	when 'speaker'
+	when 'person'
 		script(type="application/ld+json").
 			{
 				"@context": "http://schema.org",
 				"@type": "Person",
-				"url": "#{canonicalURL}",
+				"url": "#{canonical}",
+				"name": "#{title}"
+			}
+	when 'post'
+		script(type="application/ld+json").
+			{
+				"@context": "http://schema.org",
+				"@type": "BlogPosting",
+				"url": "#{canonical}",
 				"name": "#{title}"
 			}
 	default

@@ -7,14 +7,15 @@ mixin includeChild (item,index, useNumbering, useExcerpts)
 		when 'link'
 			include ./series-link
 
-if seriesSlug && seriesSet[seriesSlug] && seriesSet[seriesSlug].children.length
-	each child,index in seriesSet[seriesSlug].children
-		if child.type === 'series'
-			section.series(id='series-'+child.file.slug)
-				h2.series-title!= child.file.title
-				.series-description
-					!= child.file.contents
-				each seriesChild,childIndex in child.children
-					+includeChild(seriesChild,childIndex,useNumbering, useExcerpts)
-		else
-			+includeChild(child,index,useNumbering, useExcerpts)
+mixin series(seriesSlug)
+	if seriesSlug && seriesSets[seriesSlug] && seriesSets[seriesSlug].children.length
+		each child,index in seriesSets[seriesSlug].children
+			if child.type === 'series'
+				section.series(id='series-'+child.file.slug)
+					h2.series-title!= child.file.title
+					.series-description
+						!= child.file.contents
+					each seriesChild,childIndex in child.children
+						+includeChild(seriesChild,childIndex,useNumbering, useExcerpts)
+			else
+				+includeChild(child,index,useNumbering, useExcerpts)

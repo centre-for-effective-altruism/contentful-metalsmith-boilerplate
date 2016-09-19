@@ -7,8 +7,8 @@ nav#navbar-main.navbar.navbar-primary.navbar-fixed-top.nav-minimal
             include ./navbar-header-brand
         #navbar-main-collapse.navbar-main-menu.collapse.navbar-collapse
             ul.nav.navbar-nav
-                if seriesSet['main-navigation'] && seriesSet['main-navigation'].children
-                    each item in seriesSet['main-navigation'].children
+                if seriesSets['main-navigation'] && seriesSets['main-navigation'].children
+                    each item in seriesSets['main-navigation'].children
                         - var file = item.file
                         case item.type
                             when 'page'

@@ -4,5 +4,8 @@
   "protocol" : "http://",
   "description": "Boilerplate for getting a Contentful/Metalsmith site up and running quickly",
   "keywords": "contentful, metalsmith, netlify, boilerplate",
-  "ogImageDefault": "/images/layout/og-image-default.jpg"
+  "logo": "https://images.contentful.com/mtlo55dqox3k/6cISVamQ7YIm0UoAywuMue/12121ba1e377f1807d516e25fea05798/initech.png",
+  "social": {
+    "twitter": false
+  }
 }
