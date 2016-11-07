@@ -45,7 +45,9 @@ head
             script.
                 // track 404s
                 analytics.track('HTTPError',{
-                    'HttpError.Code': 404,
-                    'HTTPError.Path': window.location.pathname
+                    HTTPError_Code: 404,
+                    HTTPError_Path: window.location.pathname,
+                    category: 'Errors',
+                    label: ['404 Error (',window.location.pathname,')'].join('')
                 });
     block head
