@@ -186,9 +186,15 @@ function build (buildCount) {
       .use(shortcodes(shortcodeOpts))
       .use(_message.info('Converted Shortcodes'))
       .use(deleteFiles({
-        filter: '@(series|links)/**' 
+        filter: '@(series|links)/**'
       }))
       .use(saveRawContents())
+    if (process.env.NODE_ENV !== 'development') {
+      metalsmith
+        .use(favicons('images/favicon.png'))
+        .use(_message.info('Created favicons'))
+    }
+    metalsmith
       .use(layouts(Object.assign({
         engine: 'pug',
         directory: paths.layouts(),
@@ -197,7 +203,7 @@ function build (buildCount) {
       }, layoutUtils)))
       .use(_message.info('Built HTML files from templates'))
       .use(icons({
-        fontDir: 'fonts',
+        fontDir: 'fonts'
       }))
       .use(_message.info('Added icon fonts'))
       .use(lazysizes({
