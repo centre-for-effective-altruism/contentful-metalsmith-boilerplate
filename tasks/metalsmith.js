@@ -42,6 +42,7 @@ message.status('Loaded utility plugins')
 // Markdown processing
 const markdown = require('metalsmith-markdownit')
 const MarkdownItAttrs = require('markdown-it-attrs')
+const MarkdownItFootnote = require('markdown-it-footnote')
 const htmlPostprocessing = require(paths.lib('metalsmith/plugins/html-postprocessing'))
 const sanitizeShortcodes = require(paths.lib('metalsmith/plugins/sanitize-shortcodes.js'))
 const saveRawContents = require(paths.lib('metalsmith/plugins/save-raw-contents'))
@@ -177,7 +178,7 @@ function build (buildCount) {
         plugin: {
           pattern: '**/*.html'
         }
-      }).use(MarkdownItAttrs))
+      }).use(MarkdownItAttrs).use(MarkdownItFootnote))
       .use(_message.info('Converted Markdown to HTML'))
       .use(htmlPostprocessing())
       .use(sanitizeShortcodes())
