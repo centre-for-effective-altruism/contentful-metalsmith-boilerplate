@@ -28,7 +28,7 @@ case collectionSlug
 //- OG Title / URL / Description
 - var ogTitle = title + ' - ' + site.title;
 if slug === 'home'
-	- ogTitle = site.title + ' - ' + site.shortDescription
+	- ogTitle = site.title + (site.shortDescription ? ' - ' + site.shortDescription : '')
 meta(property="og:title" content=ogTitle)
 meta(property="og:url" content=canonical)
 meta(property="og:description" content=strip(description))

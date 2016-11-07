@@ -6,7 +6,9 @@ head
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
     title
         if slug==='home'
-            | #{site.title} – #{site.shortDescription}
+            | #{site.title}
+            if site.shortDescription
+                |  - #{site.shortDescription}
         else
             | #{title} - #{site.title}
     meta(name='viewport', content='width=device-width, initial-scale=1')
