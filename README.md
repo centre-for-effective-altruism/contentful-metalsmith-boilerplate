@@ -106,12 +106,12 @@ Open up a browser and look at what you've done!
 
 ## Build commands
 
-`npm run build` — build everything (by default in `development` mode)
-`npm run scripts` — just rebuild styles
-`npm run styles` — just rebuild scripts
-`npm run metalsmith` — rebuild static site using Metalsmith, skip rebuilding styles/scripts
-`npm run staging` - run the build in `staging` mode (essentially the same as `production` but with more debugging). Alias for `NODE_ENV=staging npm run build`
-`npm run production` - run the build in `production` mode (enables minification, file concatenation, CSS purification). Alias for `NODE_ENV=production npm run build`
+- `npm run build` — build everything (by default in `development` mode)
+- `npm run scripts` — just rebuild styles
+- `npm run styles` — just rebuild scripts
+- `npm run metalsmith` — rebuild static site using Metalsmith, skip rebuilding styles/scripts
+- `npm run staging` - run the build in `staging` mode (essentially the same as `production` but with more debugging). Alias for `NODE_ENV=staging npm run build`
+- `npm run production` - run the build in `production` mode (enables minification, file concatenation, CSS purification). Alias for `NODE_ENV=production npm run build`
 
 ## Command line tools
 
