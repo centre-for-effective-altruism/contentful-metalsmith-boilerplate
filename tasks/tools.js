@@ -25,6 +25,10 @@ const tools = [
     name: 'Add default content to space',
     value: toolsPath('create-default-content.js')
   },
+  {
+    name: 'Import Content Types from Contentful',
+    value: toolsPath('import-content-types.js')
+  },
   new inquirer.Separator(),
   {
     name: 'Create an Environment Variables file (.env)',
