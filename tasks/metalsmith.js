@@ -191,7 +191,7 @@ function build (buildCount) {
       .use(shortcodes(shortcodeOpts))
       .use(_message.info('Converted Shortcodes'))
       .use(deleteFiles({
-        filter: '@(series|links)/**'
+        filter: `@(${contentTypes.exclusions.join('|')})/**`
       }))
       .use(saveRawContents())
     if (process.env.NODE_ENV !== 'development') {
