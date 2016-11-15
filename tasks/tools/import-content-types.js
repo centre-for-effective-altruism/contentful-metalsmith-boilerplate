@@ -40,6 +40,7 @@ function run () {
           .then(contentTypes => {
             return Promise.all([
               Promise.map(contentTypes.items, contentType => {
+                const contentTypeFields = contentType.fields.map(field => field.id)
                 const contentTypeSchema = {
                   name: {
                     singular: contentType.name,
@@ -50,7 +51,7 @@ function run () {
                     plural: slug(trim(pluralize(contentType.name)))
                   },
                   contentfulId: contentType.sys.id, // used by the API
-                  contentfulFilenameField: contentType.fields.slug ? 'sys.id' : 'fields.slug', // used by metalsmith-contentful to build filenames
+                  contentfulFilenameField: contentTypeFields.indexOf('slug') === -1 ? 'sys.id' : 'fields.slug', // used by metalsmith-contentful to build filenames
                   collection: {
                     sort: 'title',
                     reverse: false
