@@ -67,7 +67,7 @@ function run () {
               Promise.resolve()
                 .then(() => {
                   const indexFile = ['module.exports = {']
-                    .concat(contentTypes.items.map(contentType => `  ${contentType.sys.id}: require('./${contentType.sys.id}.js')`))
+                  indexFile.push(contentTypes.items.map(contentType => `  ${contentType.sys.id}: require('./${contentType.sys.id}.js')`).join(',\n'))
                   indexFile.push('}','')
                   return fs.writeFileAsync(paths.tasks(`metalsmith/content-types/index.js`), indexFile.join('\n'))
                     .then(() => {
