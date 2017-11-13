@@ -17,12 +17,11 @@ This is still pretty new, so we're still working out some kinks, however we're u
 # clone the repo
 git clone https://github.com/centre-for-effective-altruism/contentful-metalsmith-boilerplate your_project_name
 cd your_project_name
-# optional — remove the original repo's commit history so you're starting with a blank slate. BE CAREFUL WITH rm -rf!!!
-rm -rf .git
+# rename default origin to upstream to pull in updates in future
+git remote rename origin upstream
 # create a new repo on github, and add it as your 'origin' remote
 git remote add origin https://github.com/yourhandle/your_project_name
-# if you want to update your clone as new commits are made to the original repo, add the original repo as the 'upstream' remote
-git remote add upstream https://github.com/centre-for-effective-altruism/contentful-metalsmith-boilerplate
+git push -u origin master
 # install packages
 npm install
 ```
@@ -54,7 +53,7 @@ Add default Content Types:
 npm run tools
 # ? What do you want to do? (Use arrow keys)
 # ...
-# ❯ Create default Content Types 
+# ❯ Create default Content Types
 ```
 
 Add default content:
@@ -62,7 +61,7 @@ Add default content:
 npm run tools
 # ? What do you want to do? (Use arrow keys)
 # ...
-# ❯ Add default content to space 
+# ❯ Add default content to space
 ```
 
 ### 3b. Add a custom Content Type
@@ -124,12 +123,12 @@ This will give you several options:
 
 ```sh
 ? What do you want to do? (Use arrow keys)
-❯ Create new Metalsmith plugin 
-  Create new Content Type 
-  Delete Content Types 
+❯ Create new Metalsmith plugin
+  Create new Content Type
+  Delete Content Types
   ──────────────
-  Create default Content Types 
-  Add default content to space 
+  Create default Content Types
+  Add default content to space
   ──────────────
   Create an Environment Variables file (.env)
 ```
