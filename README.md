@@ -215,6 +215,16 @@ You can add environment vars on the Advanced Settings tab. The ones you want are
 `CONTENTFUL_SPACE` => `your_contentful_space_id`
 `CONTENTFUL_DELIVERY_ACCESS_TOKEN` => `your_contentful_delivery_access_token`
 
+#### Add publish webhooks to Contentful
+
+It's useful to get the Netlify site to rebuild every time you publish or unpublish content. To do this you'll need to create a new **build hook** in Netlify, then add it to your Contentful space
+
+- Go to your Netlify site settings, and look for the _Build Hooks_ pane under the _Build and Deploy_ tab in the sidebar
+- Generate a new build hook ('Contentful' is probably a good name...) and copy it
+- Go to your Contentful space, and look for the _Webhooks_ menu item under the _Space settings_ dropdown menu
+- Add the webhook
+- Choose the events that will fire the webhook. For typical use, you'll just want to check the `Publish` and `Unpublish` fields next to _Entry_.
+
 _(If you've already got the site building and you're happy re-using the same API key in development and production, you can copy these values from your `.env` file. Otherwise generate a new API key in Contentful and copy the details from there. You won't be using the management tools on the server, so you won't need Contentful Preview or Management API keys)_
 
 That's it! Click 'build your site', wait for the site to build/deploy, and bask in the warm glow of how easy that all was.
