@@ -43,11 +43,7 @@ npm run tools
 
 _(Sensitive data like API keys should never be checked into source control. The `.env` file is excluded by `.gitignore`, so you should be fine, but you should be aware that that's where this data is being stored so you don't inadvertently check it in...)_
 
-### 3
-
-If your use case is standard pages, blog posts and series, follow the directions in a, otherwise follow b to add custom types. In either case, you'll want to edit the site.json in c.
-
-#### a. Add default Content Types and content
+#### 3a. Add default Content Types and content
 
 To get started, it's a good idea to populate your Contentful Space with default Content Types and some Entries
 
@@ -67,9 +63,7 @@ npm run tools
 # ❯ Add default content to space
 ```
 
-#### b. Add a custom Content Type
-
-If you don't want to use the default Content Types and content, start from scratch.
+#### 3b. Add a custom Content Type
 
 Add a new Content Type:
 ```sh
@@ -81,7 +75,7 @@ npm run tools
 
 Then go to Contentful and add a few entries.
 
-#### c. Edit site.json
+#### 3c. Edit site.json
 
 In `config/site.json`, there will be a bunch of metadata set to a default that you will want to change.
 
@@ -212,8 +206,8 @@ Once you've created a new site and linked your repo, you'll need to tell Netlify
 You can add environment vars on the Advanced Settings tab. The ones you want are:
 
 `NODE_ENV` => `production`
-`CONTENTFUL_SPACE` => `your_contentful_space_id`
-`CONTENTFUL_DELIVERY_ACCESS_TOKEN` => `your_contentful_delivery_access_token`
+`CONTENTFUL_SPACE` => `your_contentful_space_id` (get from `.env`)
+`CONTENTFUL_DELIVERY_ACCESS_TOKEN` => `your_contentful_delivery_access_token` (get from `.env`)
 
 _(If you've already got the site building and you're happy re-using the same API key in development and production, you can copy these values from your `.env` file. Otherwise generate a new API key in Contentful and copy the details from there. You won't be using the management tools on the server, so you won't need Contentful Preview or Management API keys)_
 
