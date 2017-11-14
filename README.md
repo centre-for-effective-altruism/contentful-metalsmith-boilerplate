@@ -28,12 +28,7 @@ npm install
 
 ### 2. Add your environment variables
 
-Link the build system to Contentful by adding API keys to a `.env` file
-
-- Create a new, empty Contentful space
-- go to the APIs tab and generate a new set of keys (or just use the default ones)
-- The Content Management API key is not available from the regular APIs tab; instead, open the link to the Content Management API page in a new tab, which should give you a key you can use. You could also create a new App and generate an OAuth Token and use that instead...
-- use the command line tools (see below) to add your environment variables:
+Link the build system to Contentful by adding API keys to a `.env` file.  Run the following and create API keys (instructions below) as necessary.
 
 ```sh
 npm run tools
@@ -42,9 +37,17 @@ npm run tools
 # ❯ Create an Environment Variables file (.env)
 ```
 
+- Create a new, empty [Contentful](https://app.contentful.com) space
+- Go to the APIs tab and generate a new set of keys (or just use the default ones)
+- You'll also need a content management token, which is under a tab on the APIs page. Click generate personal token.  _You could also create a new App and generate an OAuth Token and use that instead..._
+
 _(Sensitive data like API keys should never be checked into source control. The `.env` file is excluded by `.gitignore`, so you should be fine, but you should be aware that that's where this data is being stored so you don't inadvertently check it in...)_
 
-### 3a. Add default Content Types and content
+### 3
+
+If your use case is standard pages, blog posts and series, follow the directions in a, otherwise follow b to add custom types. In either case, you'll want to edit the site.json in c.
+
+#### a. Add default Content Types and content
 
 To get started, it's a good idea to populate your Contentful Space with default Content Types and some Entries
 
@@ -64,7 +67,7 @@ npm run tools
 # ❯ Add default content to space
 ```
 
-### 3b. Add a custom Content Type
+#### b. Add a custom Content Type
 
 If you don't want to use the default Content Types and content, start from scratch.
 
@@ -77,6 +80,11 @@ npm run tools
 ```
 
 Then go to Contentful and add a few entries.
+
+#### c. Edit site.json
+
+In `config/site.json`, there will be a bunch of metadata set to a default that you will want to change.
+
 
 ### 4. Build the site!
 
@@ -98,7 +106,7 @@ npm install -g http-server
 ```
 
 - Open a new Terminal tab
-- Run `cd /build` (i.e. the build directory)
+- Run `cd build` (i.e. the build directory)
 - Run `http-server` (serves files at http://localhost:8080 by default)
 
 Open up a browser and look at what you've done!
